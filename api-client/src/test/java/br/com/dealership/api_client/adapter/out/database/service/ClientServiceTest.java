@@ -119,6 +119,7 @@ class ClientServiceTest {
         when(clientRepository.findByCpf(cpf)).thenReturn(Optional.of(clientEntity));
 
         assertDoesNotThrow(() -> clientService.delete(cpf));
+        verify(clientRepository).deleteByCpf(cpf);
     }
 
     @Test
