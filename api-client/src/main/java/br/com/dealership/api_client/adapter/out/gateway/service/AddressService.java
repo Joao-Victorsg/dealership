@@ -17,11 +17,11 @@ public class AddressService implements AddressServicePort {
 
     @Override
     public AddressModel search(AddressModel addressModel) {
-        Logger.info("Searching address with postcode: " + addressModel.postCode(),addressModel);
+        Logger.info("Searching address with postcode: " + addressModel.postCode());
 
         final var searchedAddress = searchAddressGateway.byPostCode(addressModel.postCode());
 
-        Logger.info("Address searched with sucess to postcode: ", addressModel.postCode());
+        Logger.info("Address searched with sucess to postcode: " +  addressModel.postCode());
 
         return addressMapper.toModel(addressModel,searchedAddress);
     }

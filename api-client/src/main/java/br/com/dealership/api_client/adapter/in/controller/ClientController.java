@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.text.MessageFormat;
 
 @RequiredArgsConstructor
 @RestController
@@ -57,8 +58,10 @@ public class ClientController {
     })
     @GetMapping(path = "/clients", produces = "application/json")
     public ResponseEntity<Response<PageImpl<ClientDtoResponse>>> getAllClient(@PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
-                                                                              @RequestParam(required = false) final String city,
-                                                                              @RequestParam(required = false) final String state) {
+                                                                              @RequestParam(required = false) final String city, @RequestParam(required = false) final String state) {
+        final var logMessage = MessageFormat.format("Starting process to get all the clients with city: {0} and state: {1}",city,state);
+        Logger.info(logMessage,pageable);
+
         final var modelList = getClientUseCase.execute(pageable,city,state);
 
         final var dtoResponse = modelList.stream()
@@ -66,6 +69,8 @@ public class ClientController {
                 .toList();
 
         final var response = Response.createResponse(new PageImpl<>(dtoResponse,modelList.getPageable(),modelList.getTotalElements()));
+
+        Logger.info("Clients searched with success");
 
         return ResponseEntity.ok(response);
     }
@@ -82,11 +87,15 @@ public class ClientController {
     })
     @GetMapping(path = "/clients/{cpf}", produces = "application/json")
     public ResponseEntity<Response<ClientDtoResponse>> getClient(@PathVariable(value = "cpf") final String cpf) throws ClientNotFoundException {
+        Logger.info("Starting process to get the client: " + cpf);
+
         final var model = getClientUseCase.execute(cpf);
 
         final var dtoResponse = clientMapper.toDtoResponse(model);
 
         final var response = Response.createResponse(dtoResponse);
+
+        Logger.info("Client searched with success: ",response);
 
         return ResponseEntity.ok(response);
     }
@@ -104,7 +113,7 @@ public class ClientController {
     })
     @PostMapping(path = "/clients", produces = "application/json")
     public ResponseEntity<Response<ClientDtoResponse>> createClient(@RequestBody @Valid final ClientDtoRequest request) throws ClientAlreadyExistsException {
-        Logger.info("Starting process to create the client: ",request);
+        Logger.info("Starting process to create the client: " + request);
 
         final var clientModel = clientMapper.toModel(request);
 
@@ -114,7 +123,7 @@ public class ClientController {
 
         final var response = Response.createResponse(clientDtoResponse);
 
-        Logger.info("Client created with success",clientDtoResponse);
+        Logger.info("Client created with success" + clientDtoResponse);
 
         return ResponseEntity.created(URI.create("/v1/dealership/client/" + clientDtoResponse.cpf()))
                 .body(response);
@@ -131,6 +140,8 @@ public class ClientController {
     })
     @PutMapping(path = "/clients/{cpf}", produces = "application/json")
     public ResponseEntity<Response<ClientDtoResponse>> updateClient(@PathVariable(value = "cpf") final String cpf, @RequestBody final ClientDtoUpdateRequest request) throws ClientNotFoundException {
+        Logger.info("Starting process to update the client: " + cpf,request);
+
         final var addressUpdateInfo = AddressModel.builder()
                 .postCode(request.postCode())
                 .streetNumber(request.streetNumber())
@@ -141,6 +152,8 @@ public class ClientController {
         final var responseDto = clientMapper.toDtoResponse(updatedClient);
 
         final var response = Response.createResponse(responseDto);
+
+        Logger.info("Client updated with success: " + responseDto);
 
         return ResponseEntity.ok(response);
     }
@@ -157,9 +170,13 @@ public class ClientController {
     })
     @DeleteMapping(path = "/clients/{cpf}", produces = "application/json")
     public ResponseEntity<Response<String>> deleteClient(@PathVariable(value = "cpf") final String cpf) throws ClientNotFoundException {
+        Logger.info("Starting process to delete the client: " + cpf);
+
         deleteClientUseCase.execute(cpf);
 
         final var response = Response.createResponse("Client with CPF: " + cpf + " was successfully deleted");
+
+        Logger.info("Client deleted with success");
 
         return ResponseEntity.ok(response);
     }
