@@ -1,0 +1,190 @@
+openapi: 3.0.1
+info:
+  title: Dealership API
+  description: API to manage a Dealership system.
+  version: 1.0.0
+servers:
+  - url: /v1/dealership
+    description: Base URL for the Dealership API
+paths:
+  /clients:
+    get:
+      summary: Get All Clients
+      description: Retrieve a paginated list of all clients, optionally filtered by city and state.
+      parameters:
+        - name: city
+          in: query
+          description: Filter clients by city.
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: Filter clients by state.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Pagination page number.
+          required: false
+          schema:
+            type: integer
+        - name: size
+          in: query
+          description: Number of results per page.
+          required: false
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          description: Sorting criteria (e.g., `name,asc`).
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A paginated list of clients.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedClientResponse'
+    post:
+      summary: Create Client
+      description: Create a new client in the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientRequest'
+      responses:
+        '201':
+          description: Client created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '409':
+          description: A client with the given CPF already exists.
+  /clients/{cpf}:
+    get:
+      summary: Get Client by CPF
+      description: Retrieve a single client by their CPF.
+      parameters:
+        - name: cpf
+          in: path
+          required: true
+          description: CPF of the client to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '404':
+          description: Client not found.
+    put:
+      summary: Update Client
+      description: Update the name or address of a client by their CPF.
+      parameters:
+        - name: cpf
+          in: path
+          required: true
+          description: CPF of the client to update.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientUpdateRequest'
+      responses:
+        '200':
+          description: Client updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '404':
+          description: Client not found.
+    delete:
+      summary: Delete Client
+      description: Delete a client by their CPF.
+      parameters:
+        - name: cpf
+          in: path
+          required: true
+          description: CPF of the client to delete.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client deleted successfully.
+        '404':
+          description: Client not found.
+components:
+  schemas:
+    ClientRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Full name of the client.
+        cpf:
+          type: string
+          description: CPF (unique identifier) of the client.
+        address:
+          $ref: '#/components/schemas/Address'
+      required:
+        - name
+        - cpf
+    ClientUpdateRequest:
+      type: object
+      properties:
+        postCode:
+          type: string
+          description: Postal code of the client's address.
+        streetNumber:
+          type: string
+          description: Street number of the client's address.
+    ClientResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the client.
+        name:
+          type: string
+          description: Full name of the client.
+        cpf:
+          type: string
+          description: CPF (unique identifier) of the client.
+        address:
+          $ref: '#/components/schemas/Address'
+    PaginatedClientResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientResponse'
+        pageable:
+          type: object
+          description: Pageable metadata.
+        totalElements:
+          type: integer
+          description: Total number of clients.
+    Address:
+      type: object
+      properties:
+        postCode:
+          type: string
+          description: Postal code of the address.
+        streetNumber:
+          type: string
+          description: Street number of the address.
