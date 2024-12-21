@@ -1,9 +1,9 @@
 resource "aws_rds_cluster" "postgresql" {
-  cluster_identifier = "dealership-cluster"
+  cluster_identifier = "client-cluster"
   engine = "aurora-postgresql"
-  database_name = "dealershipdb"
-  master_username = "dealership"
-  master_password = 12345678
+  database_name = var.client_database_name
+  master_username = var.client_database_username
+  master_password = "${aws_secretsmanager_secret_version.api_client_password_version.secret_string}"
   skip_final_snapshot = true
   deletion_protection = true
   port = 4566

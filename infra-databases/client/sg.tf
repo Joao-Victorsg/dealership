@@ -1,7 +1,7 @@
 resource "aws_security_group" "allow_traffic_database"{
   name = "Allow traffic database"
   description = "Allowing all the traffic to database to test"
-  vpc_id = "vpc-b3bec064"
+  vpc_id = data.aws_vpc.vpc.id
 }
 
 resource "aws_vpc_security_group_ingress_rule" "allow_all_trafic_test" {

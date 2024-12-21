@@ -5,7 +5,7 @@ resource "aws_ssm_parameter" "database_username"{
   value = var.client_database_username
 
   tags = {
-    context = "delearship-client-api"
+    context = "delearship-client"
   }
 }
 
@@ -16,6 +16,6 @@ resource "aws_ssm_parameter" "database_password" {
   value = aws_secretsmanager_secret.api_client_password.arn
 
   tags = {
-    context = "delearship-client-api"
+    context = "delearship-client"
   }
 }
