@@ -10,7 +10,7 @@ resource "aws_apigatewayv2_api" "api" {
 #2: VPC Link
 resource "aws_apigatewayv2_vpc_link" "vpc_link" {
   name               = "dealership-vpclink"
-  security_group_ids = [aws_security_group.lb.id]
+  security_group_ids = [aws_security_group.security_group_lb.id]
   subnet_ids         = aws_subnet.private.*.id
 }
 
