@@ -71,7 +71,7 @@ resource "aws_lb_listener_rule" "client_rule"{
 
   condition {
     path_pattern {
-      values = ["clients*"]
+      values = ["/v1/dealership/clients*"]
     }
   }
 
@@ -90,7 +90,7 @@ resource "aws_ecs_service" "client_api" {
 
   network_configuration {
     security_groups = [aws_security_group.client_api_sg.id]
-    subnets = data.aws_subnets.subnets.id
+    subnets = data.aws_subnets.subnets.ids
   }
 
   load_balancer {
