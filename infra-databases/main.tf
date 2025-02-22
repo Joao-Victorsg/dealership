@@ -6,7 +6,7 @@ resource "aws_rds_cluster" "postgresql" {
   master_password = 12345678
   skip_final_snapshot = true
   deletion_protection = true
-  port = 4566
+  port = 4510
   vpc_security_group_ids = [aws_security_group.allow_traffic_database.id]
 }
 
