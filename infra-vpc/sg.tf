@@ -1,5 +1,5 @@
 #Security Group Setting
-resource "aws_security_group" "lb" {
+resource "aws_security_group" "security_group_lb" {
   name   = "api-dealership"
   vpc_id = aws_vpc.vpc_dealership.id
 

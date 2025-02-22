@@ -2,7 +2,7 @@
 resource "aws_lb" "default" {
   name            = "api-dealership"
   subnets         = aws_subnet.public.*.id
-  security_groups = [aws_security_group.lb.id]
+  security_groups = [aws_security_group.security_group_lb.id]
 }
 
 resource "aws_lb_target_group" "dealership-api" {

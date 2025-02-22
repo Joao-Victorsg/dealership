@@ -6,6 +6,9 @@ resource "aws_vpc" "vpc_dealership" {
   enable_dns_support = true
   enable_dns_hostnames = true
   cidr_block = "10.32.0.0/16"
+  tags = {
+    name = "vpc_dealership"
+  }
 }
 
 resource "aws_subnet" "public" {
