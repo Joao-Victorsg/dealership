@@ -1,10 +1,9 @@
-package br.com.dealership.api_client.config.rest.handlers;
+package br.com.dealership.car.api.config;
 
-
-import br.com.dealership.api_client.adapter.in.controller.dto.response.Response;
-import br.com.dealership.api_client.adapter.in.controller.dto.response.ResponseError;
-import br.com.dealership.api_client.core.exceptions.ClientAlreadyExistsException;
-import br.com.dealership.api_client.core.exceptions.ClientNotFoundException;
+import br.com.dealership.car.api.adapter.in.dto.response.Response;
+import br.com.dealership.car.api.adapter.in.dto.response.ResponseError;
+import br.com.dealership.car.api.core.exceptions.CarAlreadyExistsException;
+import br.com.dealership.car.api.core.exceptions.CarNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,15 +16,15 @@ import java.time.ZoneId;
 @ControllerAdvice
 public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = {ClientAlreadyExistsException.class})
-    protected ResponseEntity<Response<ResponseError>> handleClientAlreadyExistsException(ClientAlreadyExistsException exception){
+    @ExceptionHandler(value = {CarAlreadyExistsException.class})
+    protected ResponseEntity<Response<ResponseError>> handleCarAlreadyExistsException(CarAlreadyExistsException exception){
         var response = buildResponseException(exception);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    @ExceptionHandler(value = {ClientNotFoundException.class})
-    protected ResponseEntity<Response<ResponseError>> handleClientNotFoundException(ClientNotFoundException exception){
+    @ExceptionHandler(value = {CarNotFoundException.class})
+    protected ResponseEntity<Response<ResponseError>> handleCarNotFoundException(CarNotFoundException exception){
         var response = buildResponseException(exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -38,5 +37,4 @@ public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
                 .build()
         );
     }
-
 }
