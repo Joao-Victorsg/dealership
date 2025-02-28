@@ -6,6 +6,7 @@ import br.com.dealership.car.api.adapter.in.dto.request.CarDtoUpdateRequest;
 import br.com.dealership.car.api.adapter.in.dto.response.CarDtoResponse;
 import br.com.dealership.car.api.adapter.in.dto.response.Response;
 import br.com.dealership.car.api.adapter.mapper.CarMapper;
+import br.com.dealership.car.api.adapter.mapper.SearchFilterMapper;
 import br.com.dealership.car.api.core.exceptions.CarAlreadyExistsException;
 import br.com.dealership.car.api.core.exceptions.CarNotFoundException;
 import br.com.dealership.car.api.core.usecase.CreateCarUseCase;
@@ -49,6 +50,7 @@ public class CarController {
     private final SearchCarUseCase searchCarUseCase;
     private final UpdateCarUseCase updateCarUseCase;
     private final CarMapper carMapper;
+    private final SearchFilterMapper searchFilterMapper;
 
     @Operation(summary = "Save a car in the database")
     @ApiResponses(value = {
@@ -86,14 +88,17 @@ public class CarController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @GetMapping(path = "/cars", produces = "application/json")
-    public ResponseEntity<Response<PageImpl<CarDtoResponse>>> getAllCars(@PageableDefault(sort = "id",
+    public ResponseEntity<Response<PageImpl<CarDtoResponse>>> searchAllCars(@PageableDefault(sort = "id",
             direction = Sort.Direction.ASC) final Pageable pageable,
-                                                                     @RequestParam(required = false, defaultValue = "0") final BigDecimal initialValue,
-                                                                     @RequestParam(required = false) final BigDecimal finalValue,
-                                                                     @RequestParam(required = false) final String modelYear,
-                                                                     @RequestParam(required = false) final String model,
-                                                                     @RequestParam(required = false) final String manufacturer) {
-        final var cars =  searchCarUseCase.execute(pageable,initialValue,finalValue,modelYear,model,manufacturer);
+                                                                            @RequestParam(required = false, defaultValue = "0") final BigDecimal initialValue,
+                                                                            @RequestParam(required = false) final BigDecimal finalValue,
+                                                                            @RequestParam(required = false) final String modelYear,
+                                                                            @RequestParam(required = false) final String model,
+                                                                            @RequestParam(required = false) final String manufacturer) {
+
+        final var searchFilters = searchFilterMapper.toSearchFilter(initialValue,finalValue,model,modelYear,manufacturer);
+
+        final var cars =  searchCarUseCase.execute(pageable,searchFilters);
 
         final var carsDtoResponseList = cars.stream()
                 .map(carMapper::toCarDtoResponse)
