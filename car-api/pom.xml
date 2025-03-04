@@ -37,6 +37,9 @@
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
 		<pitest-maven.version>1.17.1</pitest-maven.version>
 		<pitest-junit5-plugin.version>1.2.1</pitest-junit5-plugin.version>
+		<testcontainers-bom.version>1.20.4</testcontainers-bom.version>
+		<rest-assured.version>5.5.0</rest-assured.version>
+		<maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -87,8 +90,43 @@
 			<artifactId>instancio-junit</artifactId>
 			<version>${instancio-junit.version}</version>
 		</dependency>
-	</dependencies>
 
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>${rest-assured.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>1.20.4</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
@@ -239,8 +277,34 @@
 						<targetClass>**.adapter.out.database.service.**</targetClass>
 						<targetClass>**.core.usecase.**</targetClass>
 					</targetClasses>
+					<excludedTestClasses>
+						<excludedTestClass>**.integrated.**</excludedTestClass>
+					</excludedTestClasses>
+					<withHistory>true</withHistory>
+					<threads>8</threads>
 					<skip>${skip.test}</skip>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${maven-failsafe-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>integration-test</goal>
+						</goals>
+						<phase>verify</phase>
+					</execution>
+					<execution>
+						<id>verify</id>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+						<phase>verify</phase>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
