@@ -1,6 +1,6 @@
 package integrated.wiremock;
 
-import br.com.dealership.client.api.adapter.out.gateway.dto.AddressDtoGateway;
+import br.com.dealership.api_client.adapter.out.gateway.dto.AddressDtoGateway;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.gson.Gson;
 import org.springframework.http.HttpStatus;
