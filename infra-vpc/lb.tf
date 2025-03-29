@@ -4,6 +4,9 @@ resource "aws_lb" "default" {
   subnets         = aws_subnet.private.*.id
   security_groups = [aws_security_group.security_group_lb.id]
   internal = true
+  tags = {
+    "Name" = "api-dealership"
+  }
 }
 
 resource "aws_lb_listener" "dealership-api" {

@@ -1,6 +1,6 @@
 data "aws_vpc" "vpc"{
   filter {
-    name = "tag:name"
+    name = "tag:Name"
     values = ["vpc_dealership"]
   }
 }
