@@ -3,7 +3,6 @@ package br.com.dealership.api_client.core.domain;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Builder(toBuilder = true)
 public record ClientModel(
