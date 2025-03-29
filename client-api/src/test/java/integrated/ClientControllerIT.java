@@ -1,8 +1,8 @@
 package integrated;
 
-import br.com.dealership.client.api.adapter.in.controller.dto.request.AddressDtoRequest;
-import br.com.dealership.client.api.adapter.in.controller.dto.request.ClientDtoRequest;
-import br.com.dealership.client.api.adapter.in.controller.dto.request.ClientDtoUpdateRequest;
+import br.com.dealership.api_client.adapter.in.controller.dto.request.AddressDtoRequest;
+import br.com.dealership.api_client.adapter.in.controller.dto.request.ClientDtoRequest;
+import br.com.dealership.api_client.adapter.in.controller.dto.request.ClientDtoUpdateRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import lombok.RequiredArgsConstructor;
