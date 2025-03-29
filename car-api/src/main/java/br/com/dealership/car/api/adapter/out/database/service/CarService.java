@@ -3,6 +3,7 @@ package br.com.dealership.car.api.adapter.out.database.service;
 import br.com.dealership.car.api.adapter.mapper.CarMapper;
 import br.com.dealership.car.api.adapter.out.database.repository.CarRepository;
 import br.com.dealership.car.api.core.domain.CarModel;
+import br.com.dealership.car.api.core.domain.SearchFilter;
 import br.com.dealership.car.api.core.exceptions.CarAlreadyExistsException;
 import br.com.dealership.car.api.core.exceptions.CarNotFoundException;
 import br.com.dealership.car.api.core.usecase.port.CarServicePort;
@@ -36,11 +37,12 @@ public class CarService implements CarServicePort {
         return carMapper.toCarModel(carEntity);
     }
 
-    //TODO: Verify if a DTO for specifications make senses
     @Override
-    public Page<CarModel> getAll(final BigDecimal initialValue, final BigDecimal finalValue, final String year, final String model, final String manufacturer, final Pageable pageable) {
-        final var specification = Specification.where(betweenValues(initialValue,finalValue))
-                .and(equalModelYear(year)).and(equalModel(model)).and(equalManufacturer(manufacturer));
+    public Page<CarModel> searchAll(final SearchFilter searchFilter, final Pageable pageable) {
+        final var specification = Specification.where(betweenValues(searchFilter.initialValue(),searchFilter.finalValue()))
+                .and(equalModelYear(searchFilter.modelYear()))
+                .and(equalModel(searchFilter.model()))
+                .and(equalManufacturer(searchFilter.manufacturer()));
 
         final var carsEntities = carRepository.findAll(specification,pageable);
 

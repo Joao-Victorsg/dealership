@@ -11,4 +11,3 @@ public record Response<T> (
         return new Response<>(error);
     }
 }
-

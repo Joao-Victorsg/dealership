@@ -9,22 +9,18 @@ resource "aws_ecs_task_definition" "car_api" {
   container_definitions = <<DEFINITION
 [
   {
-    "image": "joaovictorsg/car-api:v1.1",
+    "image": "joaovictorsg/car-api:1.3",
     "cpu": 1024,
     "memory": 2048,
     "name": "car-api",
     "networkMode": "awsvpc",
     "portMappings": [
       {
-        "containerPort": 8085,
-        "hostPort": 8085
+        "containerPort": 8086,
+        "hostPort": 8086
       }
     ],
     "environment": [
-      {
-        "name": "SPRING_PROFILES_ACTIVE",
-        "value": "container"
-      }
     ]
   }
 ]
@@ -37,8 +33,8 @@ resource "aws_security_group" "car_api_sg" {
 
   ingress {
     protocol        = "tcp"
-    from_port       = 8085
-    to_port         = 8085
+    from_port       = 8086
+    to_port         = 8086
     security_groups = [data.aws_security_group.lb_sg.id]
   }
 
@@ -52,7 +48,7 @@ resource "aws_security_group" "car_api_sg" {
 
 resource "aws_lb_target_group" "car_api" {
   name        = "car-api-target-group"
-  port        = 8085
+  port        = 8086
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.vpc.id
   target_type = "ip"
@@ -67,7 +63,7 @@ resource "aws_lb_target_group" "car_api" {
 
 resource "aws_lb_listener_rule" "car_rule"{
   listener_arn = data.aws_lb_listener.lb_listener.arn
-  priority = 10
+  priority = 11
 
   condition {
     path_pattern {
@@ -81,8 +77,8 @@ resource "aws_lb_listener_rule" "car_rule"{
   }
 }
 
-resource "aws_ecs_service" "client_api" {
-  name            = "car-api-service"
+resource "aws_ecs_service" "car_api" {
+  name            = "car-api"
   cluster         = data.aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.car_api.arn
   desired_count   = 1
@@ -96,7 +92,7 @@ resource "aws_ecs_service" "client_api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.car_api.id
     container_name   = "car-api"
-    container_port   = 8085
+    container_port   = 8086
   }
 }
 
