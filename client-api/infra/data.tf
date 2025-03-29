@@ -21,11 +21,14 @@ data "aws_subnets" "subnets"{
 
 data "aws_lb" "lb"{
   name = "api-dealership"
+  tags = {
+    Name = "api-dealership"
+  }
 }
 
 data "aws_lb_listener" "lb_listener" {
   load_balancer_arn = data.aws_lb.lb.arn
-  port = 4566
+  port = 80
 }
 
 data "aws_ecs_cluster" "cluster"{
