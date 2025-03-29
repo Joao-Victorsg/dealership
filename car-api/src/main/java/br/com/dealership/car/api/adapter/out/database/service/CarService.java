@@ -40,7 +40,9 @@ public class CarService implements CarServicePort {
     @Override
     public Page<CarModel> searchAll(final SearchFilter searchFilter, final Pageable pageable) {
         final var specification = Specification.where(betweenValues(searchFilter.initialValue(),searchFilter.finalValue()))
-                .and(equalModelYear(searchFilter.modelYear())).and(equalModel(searchFilter.model())).and(equalManufacturer(searchFilter.manufacturer()));
+                .and(equalModelYear(searchFilter.modelYear()))
+                .and(equalModel(searchFilter.model()))
+                .and(equalManufacturer(searchFilter.manufacturer()));
 
         final var carsEntities = carRepository.findAll(specification,pageable);
 

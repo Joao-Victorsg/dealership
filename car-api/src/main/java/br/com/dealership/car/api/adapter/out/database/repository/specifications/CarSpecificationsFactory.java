@@ -12,21 +12,21 @@ public class CarSpecificationsFactory {
 
     public static Specification<CarEntity> betweenValues(final BigDecimal initialValue, final BigDecimal finalValue){
         return (root, query, builder) ->
-                builder.between(root.get("value"),initialValue,finalValue);
+                finalValue == null ? builder.conjunction() : builder.between(root.get("value"),initialValue,finalValue);
     }
 
     public static Specification<CarEntity> equalModelYear(final String year){
         return (root, query, builder) ->
-                builder.equal(root.get("modelYear"),year);
+                year == null ? builder.conjunction() : builder.equal(root.get("modelYear"),year);
     }
 
     public static Specification<CarEntity> equalModel(final String model){
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("model"),model);
+        return (root, query, builder) ->
+                model == null ? builder.conjunction() : builder.equal(builder.lower(root.get("model")),model.toLowerCase());
     }
 
     public static Specification<CarEntity> equalManufacturer(final String manufacturer){
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("manufacturer"),manufacturer);
+        return (root, query, builder) ->
+                manufacturer == null ? builder.conjunction() : builder.equal(builder.lower(root.get("manufacturer")),manufacturer.toLowerCase());
     }
 }
