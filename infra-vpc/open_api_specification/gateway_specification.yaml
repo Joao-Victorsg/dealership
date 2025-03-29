@@ -127,6 +127,126 @@ paths:
           description: Client deleted successfully.
         '404':
           description: Client not found.
+  /cars:
+    post:
+      summary: Save a car in the database
+      operationId: createCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarDtoRequest'
+      responses:
+        "201":
+          description: The car was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCarDtoResponse'
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "408": { $ref: '#/components/responses/RequestTimeout' }
+        "409": { $ref: '#/components/responses/Conflict' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+        "502": { $ref: '#/components/responses/BadGateway' }
+        "503": { $ref: '#/components/responses/ServiceUnavailable' }
+        "504": { $ref: '#/components/responses/GatewayTimeout' }
+    get:
+      summary: Return a page of cars
+      operationId: searchAllCars
+      parameters:
+        - name: initialValue
+          in: query
+          schema:
+            type: number
+        - name: finalValue
+          in: query
+          schema:
+            type: number
+        - name: modelYear
+          in: query
+          schema:
+            type: string
+        - name: model
+          in: query
+          schema:
+            type: string
+        - name: manufacturer
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Return a list of cars
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePageCarDtoResponse'
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "408": { $ref: '#/components/responses/RequestTimeout' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+        "503": { $ref: '#/components/responses/ServiceUnavailable' }
+        "504": { $ref: '#/components/responses/GatewayTimeout' }
+  /cars/{vin}:
+    get:
+      summary: Return one car
+      operationId: searchCarByVin
+      parameters:
+        - name: vin
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The car was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCarDtoResponse'
+        "400": { $ref: '#/components/responses/BadRequest' }
+        "404": { $ref: '#/components/responses/NotFound' }
+        "408": { $ref: '#/components/responses/RequestTimeout' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+        "503": { $ref: '#/components/responses/ServiceUnavailable' }
+        "504": { $ref: '#/components/responses/GatewayTimeout' }
+    put:
+      summary: Update a car's color or value
+      operationId: updateCar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarDtoUpdateRequest'
+      responses:
+        "200":
+          description: The car was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCarDtoResponse'
+        "404": { $ref: '#/components/responses/NotFound' }
+        "408": { $ref: '#/components/responses/RequestTimeout' }
+        "502": { $ref: '#/components/responses/BadGateway' }
+        "503": { $ref: '#/components/responses/ServiceUnavailable' }
+        "504": { $ref: '#/components/responses/GatewayTimeout' }
+    delete:
+      summary: Delete a car by VIN
+      operationId: deleteCar
+      responses:
+        "200":
+          description: The car was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseString'
+        "404": { $ref: '#/components/responses/NotFound' }
+        "408": { $ref: '#/components/responses/RequestTimeout' }
+        "500": { $ref: '#/components/responses/InternalServerError' }
+        "502": { $ref: '#/components/responses/BadGateway' }
+        "503": { $ref: '#/components/responses/ServiceUnavailable' }
+        "504": { $ref: '#/components/responses/GatewayTimeout' }
 components:
   schemas:
     ClientRequest:
@@ -188,3 +308,66 @@ components:
         streetNumber:
           type: string
           description: Street number of the address.
+    CarDtoRequest:
+      type: object
+      properties:
+        vin:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        value:
+          type: number
+    CarDtoUpdateRequest:
+      type: object
+      properties:
+        color:
+          type: string
+        value:
+          type: number
+    CarDtoResponse:
+      type: object
+      properties:
+        vin:
+          type: string
+        model:
+          type: string
+        manufacturer:
+          type: string
+        value:
+          type: number
+    ResponseCarDtoResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CarDtoResponse'
+    ResponsePageCarDtoResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CarDtoResponse'
+    ResponseString:
+      type: object
+      properties:
+        data:
+          type: string
+  responses:
+    BadRequest:
+      description: The server cannot process the request due to a client error
+    RequestTimeout:
+      description: The request timed out
+    Conflict:
+      description: There was a conflict when creating the car
+    NotFound:
+      description: The resource was not found
+    InternalServerError:
+      description: There was an internal server error
+    BadGateway:
+      description: Bad Gateway, the server got an invalid response
+    ServiceUnavailable:
+      description: The service is unavailable
+    GatewayTimeout:
+      description: The Gateway timed out
