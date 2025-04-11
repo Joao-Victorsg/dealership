@@ -1,5 +1,5 @@
 #AWS ALB Setting
-resource "aws_lb" "default" {
+resource "aws_lb" "dealership_lb" {
   name            = "api-dealership"
   subnets         = aws_subnet.private.*.id
   security_groups = [aws_security_group.security_group_lb.id]
@@ -10,7 +10,7 @@ resource "aws_lb" "default" {
 }
 
 resource "aws_lb_listener" "dealership-api" {
-  load_balancer_arn = aws_lb.default.arn
+  load_balancer_arn = aws_lb.dealership_lb.arn
   port              = "80"
   protocol          = "HTTP"
 
