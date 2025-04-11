@@ -23,7 +23,7 @@ resource "aws_apigatewayv2_integration" "api_integration" {
   description        = "VPC integration"
   integration_method = "ANY"
   integration_uri    = aws_lb_listener.dealership-api.arn
-  depends_on         = [aws_lb.default]
+  depends_on         = [aws_lb.dealership_lb]
 }
 
 #4: APIGW Route

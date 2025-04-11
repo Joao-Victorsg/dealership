@@ -8,7 +8,7 @@ stored in a place, as the dealership will need to query some informations about 
 
 It will use a microservice architecture, that can be viewed below:
 
-![Dealership Architecture](Arquitetura-Dealership-novo-Dealership%20V2.drawio.png)
+![Dealership Architecture](Arquitetura-Dealership-novo-Dealership%20V3-Dealership%20V3.drawio.png)
 
 ## In construction
 
