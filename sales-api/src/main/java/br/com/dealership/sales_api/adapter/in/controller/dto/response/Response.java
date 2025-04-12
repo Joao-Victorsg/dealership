@@ -1,4 +1,4 @@
-package br.com.dealership.sales_api.adapter.in.dto.response;
+package br.com.dealership.sales_api.adapter.in.controller.dto.response;
 
 public record Response<T> (
         T data

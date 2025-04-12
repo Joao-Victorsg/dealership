@@ -31,11 +31,11 @@ public class SalesEntity {
 
     @OneToOne
     @JoinColumn(name = "client_cpf",nullable = false)
-    private ClientEntity cpf;
+    private ClientEntity client;
 
     @OneToOne
     @JoinColumn(name = "car_vin", unique = true, nullable = false)
-    private CarEntity vin;
+    private CarEntity car;
 
     @Column(nullable = false)
     private LocalDateTime registrationDate;

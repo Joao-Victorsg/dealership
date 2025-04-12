@@ -1,4 +1,4 @@
-package br.com.dealership.sales_api.adapter.in.dto.request;
+package br.com.dealership.sales_api.adapter.in.controller.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;

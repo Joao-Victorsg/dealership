@@ -1,9 +1,9 @@
 package br.com.dealership.sales_api.adapter.in.controller;
 
-
-import br.com.dealership.sales_api.adapter.in.dto.request.SalesDtoRequest;
-import br.com.dealership.sales_api.adapter.in.dto.response.Response;
-import br.com.dealership.sales_api.adapter.in.dto.response.SalesDtoResponse;
+import br.com.dealership.sales_api.adapter.in.controller.dto.request.SalesDtoRequest;
+import br.com.dealership.sales_api.adapter.in.controller.dto.response.Response;
+import br.com.dealership.sales_api.adapter.in.controller.dto.response.SalesDtoResponse;
+import br.com.dealership.sales_api.adapter.mapper.SalesMapper;
 import br.com.dealership.sales_api.core.exceptions.SaleNotFoundException;
 import br.com.dealership.sales_api.core.usecase.CancelSalesUseCase;
 import br.com.dealership.sales_api.core.usecase.CreateSalesUseCase;
@@ -31,8 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.util.UUID;
 
-import static br.com.dealership.sales_api.adapter.in.dto.response.Response.createResponse;
+import static br.com.dealership.sales_api.adapter.in.controller.dto.response.Response.createResponse;
 
 @Slf4j
 @RestController
@@ -57,13 +58,13 @@ public class SalesController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @PostMapping(path = "/sales")
-    public ResponseEntity<Response<SalesDtoResponse>> saveSale(@RequestBody @Valid final SalesDtoRequest request) {
+    public ResponseEntity<Response<SalesDtoResponse>> createSale(@RequestBody @Valid final SalesDtoRequest request) {
 
-        final var salesModel = salesMapper.toSalesModel(request);
+        final var salesModel = salesMapper.toModel(request);
 
         final var createdSales = createSalesUseCase.execute(salesModel);
 
-        final var salesDtoResponse = salesMapper.toSalesDtoResponse(createdSales);
+        final var salesDtoResponse = salesMapper.toDto(createdSales);
 
         final var response = Response.createResponse(salesDtoResponse);
 
@@ -86,12 +87,10 @@ public class SalesController {
                                                                                @RequestParam(required = false) final LocalDate finalDate,
                                                                                @RequestParam(required = false) final String cpf){
 
-        //TODO: Incluir parametro para poder filtrar pelo cpf do cliente
-
         final var sales = searchSalesUseCase.execute(pageable,initialDate,finalDate,cpf);
 
         final var salesDtoResponse = sales.stream()
-                .map(salesMapper::toSalesDtoResponse)
+                .map(salesMapper::toDto)
                 .toList();
 
         final var response = Response.createResponse(new PageImpl<>(salesDtoResponse,sales.getPageable(),sales.getTotalElements()));
@@ -110,10 +109,10 @@ public class SalesController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @GetMapping(path = "/sales/{id}", produces = "application/json")
-    public ResponseEntity<Response<SalesDtoResponse>> searchSale(@PathVariable(value = "id") final String id){
-        var sale = searchSalesUseCase.execute(id);
+    public ResponseEntity<Response<SalesDtoResponse>> searchSale(@PathVariable(value = "id") final String id) throws SaleNotFoundException {
+        var sale = searchSalesUseCase.execute(UUID.fromString(id));
 
-        final var response = Response.createResponse(salesMapper.toSalesDtoResponse(sale));
+        final var response = Response.createResponse(salesMapper.toDto(sale));
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -129,9 +128,9 @@ public class SalesController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @DeleteMapping(path = "/sales/{id}", produces = "application/json")
-    public ResponseEntity<Response<String>> deleteSales(@PathVariable(value = "id") final String id){
+    public ResponseEntity<Response<String>> cancelSale(@PathVariable(value = "id") final String id) throws SaleNotFoundException {
 
-        cancelSalesUseCase.execute(id);
+        cancelSalesUseCase.execute(UUID.fromString(id));
 
         final var response = createResponse("The sale with ID: " + id + " was deleted successfully");
 
