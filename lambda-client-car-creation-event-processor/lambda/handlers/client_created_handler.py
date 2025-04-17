@@ -3,7 +3,7 @@ from handlers.event_handler import EventHandler
 
 class ClientCreatedHandler(EventHandler):
     def handle(self, message):
-        cpf = message.get("cpf")
+        cpf = str(message)
         if not cpf:
             raise ValueError("Missing CPF in ClientCreated event")
-        save_to_database("TB_SALES_CLIENT", "cpf", cpf)
+        save_to_database("TB_CLIENT", "cpf", cpf)

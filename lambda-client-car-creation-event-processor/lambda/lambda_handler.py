@@ -1,6 +1,6 @@
 import json
 
-from domain.usecase import process_event
+from domain.usecase.process_event import process_event
 from utils.logger import logger
 
 def lambda_handler(event, context):
