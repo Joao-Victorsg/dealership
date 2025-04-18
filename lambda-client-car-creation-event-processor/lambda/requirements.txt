@@ -1,3 +1,4 @@
 boto3==1.34.0        # AWS SDK for Python
 sqlalchemy==2.0.28   # ORM for database interactions
 pydantic==2.6.4      # Data validation & parsing
+pyscopg[bynari]
