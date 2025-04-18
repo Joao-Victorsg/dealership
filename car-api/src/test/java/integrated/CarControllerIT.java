@@ -2,21 +2,30 @@ package integrated;
 
 import br.com.dealership.car.api.adapter.in.dto.request.CarDtoRequest;
 import br.com.dealership.car.api.adapter.in.dto.request.CarDtoUpdateRequest;
+import integrated.utils.SqsClient;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Slf4j
 @RequiredArgsConstructor
  class CarControllerIT extends BaseIT{
 
+    private static final String QUEUE_NAME = "client-car-creation-event-queue";
     private static final String URL_WITH_VIN_PATH_PARAMETER = "/v1/dealership/cars/{vin}";
     private static final String URL = "/v1/dealership/cars";
 
@@ -38,6 +47,22 @@ import static org.hamcrest.CoreMatchers.notNullValue;
                 .body("data.manufacturer",equalTo(car.manufacturer()))
                 .body("data.vin", equalTo(car.vin()))
                 .body("data.value", equalTo(car.value().floatValue()));
+
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofSeconds(1))
+                .untilAsserted(() -> {
+                    final var message = SqsClient.getMessageFromQueue(QUEUE_NAME);
+                    assertNotNull(message);
+                    assertTrue(message.isPresent());
+
+                    final var eventTypeHeader = message.get().getHeaders().get("eventType");
+                    final var body = message.get().getPayload();
+
+                    assertEquals("CarCreated", eventTypeHeader);
+                    assertEquals(car.vin(), body);
+                });
     }
 
     @DisplayName("Get a car by VIN with a valid request")
@@ -83,7 +108,8 @@ import static org.hamcrest.CoreMatchers.notNullValue;
                 .statusCode(HttpStatus.OK.value())
                 .body("data",notNullValue())
                 .body("data.content",notNullValue())
-                .body("data.size",equalTo(10));
+                .body("data.page.size",equalTo(10))
+                .body("data.page.totalElements",equalTo(1));
     }
 
     @DisplayName("Given a valid request to update a car, do it")
