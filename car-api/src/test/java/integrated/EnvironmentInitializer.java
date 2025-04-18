@@ -8,6 +8,8 @@ import org.testcontainers.containers.Network;
 import java.util.Map;
 
 
+import static integrated.container.LocalStackContainerDefinition.getLocalstackUrl;
+import static integrated.container.LocalStackContainerDefinition.startLocalstackContainer;
 import static integrated.container.PostgresContainerDefinition.getPostgresUrl;
 import static integrated.container.PostgresContainerDefinition.startPostgresContainer;
 
@@ -18,9 +20,11 @@ public class EnvironmentInitializer implements ApplicationContextInitializer<Con
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext) {
         startPostgresContainer();
+        startLocalstackContainer();
 
         final var properties = Map.of(
-                "spring.datasource.url",getPostgresUrl()
+                "spring.datasource.url",getPostgresUrl(),
+                "cloud.aws.sqs.endpoint",getLocalstackUrl()
         );
 
         TestPropertyValues.of(properties).applyTo(applicationContext);
