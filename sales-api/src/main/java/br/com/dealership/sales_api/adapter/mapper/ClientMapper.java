@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClientMapper {
 
-    public ClientEntity toClientEntity(String cpf){
+    public ClientEntity toEntity(String cpf){
         return ClientEntity.builder()
                 .cpf(cpf)
                 .build();

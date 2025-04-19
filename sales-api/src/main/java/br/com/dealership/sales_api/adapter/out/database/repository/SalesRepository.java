@@ -11,6 +11,8 @@ import java.util.UUID;
 @Repository
 public interface SalesRepository extends JpaRepository<SalesEntity, UUID>, JpaSpecificationExecutor<SalesEntity> {
 
+    boolean existsByCarVin(String vin);
+
     Optional<SalesEntity> findById(UUID salesId);
 
     void deleteById(UUID salesId);

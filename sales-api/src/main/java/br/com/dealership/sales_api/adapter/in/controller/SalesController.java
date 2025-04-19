@@ -4,6 +4,7 @@ import br.com.dealership.sales_api.adapter.in.controller.dto.request.SalesDtoReq
 import br.com.dealership.sales_api.adapter.in.controller.dto.response.Response;
 import br.com.dealership.sales_api.adapter.in.controller.dto.response.SalesDtoResponse;
 import br.com.dealership.sales_api.adapter.mapper.SalesMapper;
+import br.com.dealership.sales_api.core.exceptions.CarAlreadySoldException;
 import br.com.dealership.sales_api.core.exceptions.SaleNotFoundException;
 import br.com.dealership.sales_api.core.usecase.CancelSalesUseCase;
 import br.com.dealership.sales_api.core.usecase.CreateSalesUseCase;
@@ -58,7 +59,7 @@ public class SalesController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @PostMapping(path = "/sales")
-    public ResponseEntity<Response<SalesDtoResponse>> createSale(@RequestBody @Valid final SalesDtoRequest request) {
+    public ResponseEntity<Response<SalesDtoResponse>> createSale(@RequestBody @Valid final SalesDtoRequest request) throws CarAlreadySoldException {
 
         final var salesModel = salesMapper.toModel(request);
 
@@ -66,7 +67,7 @@ public class SalesController {
 
         final var salesDtoResponse = salesMapper.toDto(createdSales);
 
-        final var response = Response.createResponse(salesDtoResponse);
+        final var response = createResponse(salesDtoResponse);
 
         return ResponseEntity.created(URI.create("/v1/dealership/sales/" + salesDtoResponse.id()))
                 .body(response);
@@ -93,7 +94,7 @@ public class SalesController {
                 .map(salesMapper::toDto)
                 .toList();
 
-        final var response = Response.createResponse(new PageImpl<>(salesDtoResponse,sales.getPageable(),sales.getTotalElements()));
+        final var response = createResponse(new PageImpl<>(salesDtoResponse,sales.getPageable(),sales.getTotalElements()));
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -112,7 +113,7 @@ public class SalesController {
     public ResponseEntity<Response<SalesDtoResponse>> searchSale(@PathVariable(value = "id") final String id) throws SaleNotFoundException {
         var sale = searchSalesUseCase.execute(UUID.fromString(id));
 
-        final var response = Response.createResponse(salesMapper.toDto(sale));
+        final var response = createResponse(salesMapper.toDto(sale));
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

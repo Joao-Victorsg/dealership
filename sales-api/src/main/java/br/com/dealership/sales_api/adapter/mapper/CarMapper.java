@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CarMapper {
 
-    public CarEntity toCarEntity(String vin){
+    public CarEntity toEntity(String vin){
         return CarEntity.builder()
                 .vin(vin)
                 .build();

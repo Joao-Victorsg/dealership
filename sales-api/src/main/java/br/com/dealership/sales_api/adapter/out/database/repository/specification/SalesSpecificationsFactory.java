@@ -15,12 +15,12 @@ public class SalesSpecificationsFactory {
     public static Specification<SalesEntity> betweenDates(final LocalDate initialDate, final LocalDate finalDate){
         final var isStartOrFinalDateNull = initialDate == null || finalDate == null;
 
-        return ((root, query, builder) ->
-                isStartOrFinalDateNull ? builder.conjunction() : builder.between(root.get("registrationDate"),initialDate,finalDate));
+        return (root, query, builder) ->
+                isStartOrFinalDateNull ? builder.conjunction() : builder.between(root.get("registrationDate"),initialDate,finalDate);
     }
 
     public static Specification<SalesEntity> hasCpf(final String cpf){
-        return ((root, query, builder) ->
-                cpf == null ? builder.conjunction() : builder.equal(root.get("client").get("cpf"),cpf));
+        return (root, query, builder) ->
+                cpf == null ? builder.conjunction() : builder.equal(root.get("client").get("cpf"),cpf);
     }
 }

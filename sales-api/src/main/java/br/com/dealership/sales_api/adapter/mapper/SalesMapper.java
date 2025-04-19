@@ -43,8 +43,8 @@ public class SalesMapper {
     }
 
     public SalesEntity toEntity(SalesModel salesModel){
-        final var carEntity = carMapper.toCarEntity(salesModel.vin());
-        final var clientEntity = clientMapper.toClientEntity(salesModel.cpf());
+        final var carEntity = carMapper.toEntity(salesModel.vin());
+        final var clientEntity = clientMapper.toEntity(salesModel.cpf());
 
         return SalesEntity.builder()
                 .car(carEntity)

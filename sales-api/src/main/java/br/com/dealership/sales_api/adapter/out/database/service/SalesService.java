@@ -3,7 +3,7 @@ package br.com.dealership.sales_api.adapter.out.database.service;
 import br.com.dealership.sales_api.adapter.mapper.SalesMapper;
 import br.com.dealership.sales_api.adapter.out.database.repository.SalesRepository;
 import br.com.dealership.sales_api.core.domain.SalesModel;
-import br.com.dealership.sales_api.core.exceptions.DuplicatedSalesIdException;
+import br.com.dealership.sales_api.core.exceptions.CarAlreadySoldException;
 import br.com.dealership.sales_api.core.exceptions.SaleNotFoundException;
 import br.com.dealership.sales_api.core.usecase.port.SalesServicePort;
 import lombok.RequiredArgsConstructor;
@@ -27,9 +27,9 @@ public class SalesService implements SalesServicePort {
     private final SalesMapper salesMapper;
 
     @Override
-    public SalesModel create(SalesModel salesModel) throws DuplicatedSalesIdException {
-        if(salesRepository.findById(salesModel.id()).isPresent())
-            throw new DuplicatedSalesIdException("Already exists a sale with this id");
+    public SalesModel create(SalesModel salesModel) throws CarAlreadySoldException {
+        if(salesRepository.existsByCarVin(salesModel.vin()))
+            throw new CarAlreadySoldException("This car was already sold");
 
         final var entity = salesMapper.toEntity(salesModel);
 

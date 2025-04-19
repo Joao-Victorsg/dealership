@@ -2,6 +2,7 @@ package br.com.dealership.sales_api.config;
 
 import br.com.dealership.sales_api.adapter.in.controller.dto.response.Response;
 import br.com.dealership.sales_api.adapter.in.controller.dto.response.ResponseError;
+import br.com.dealership.sales_api.core.exceptions.CarAlreadySoldException;
 import br.com.dealership.sales_api.core.exceptions.DuplicatedSalesIdException;
 import br.com.dealership.sales_api.core.exceptions.SaleNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @ControllerAdvice
-public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {DuplicatedSalesIdException.class})
     protected ResponseEntity<Response<ResponseError>> handleDuplicatedSaleExistsException(DuplicatedSalesIdException exception){
@@ -28,6 +29,13 @@ public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
         var response = buildResponseException(exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(value = {CarAlreadySoldException.class})
+    protected ResponseEntity<Response<ResponseError>> handleCarAlreadySoldException(CarAlreadySoldException exception){
+        var response = buildResponseException(exception);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
 
