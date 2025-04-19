@@ -247,6 +247,160 @@ paths:
         "502": { $ref: '#/components/responses/BadGateway' }
         "503": { $ref: '#/components/responses/ServiceUnavailable' }
         "504": { $ref: '#/components/responses/GatewayTimeout' }
+  /sales:
+    post:
+      summary: Create a sale
+      operationId: createSale
+      tags:
+        - Sales
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesDtoRequest'
+      responses:
+        '201':
+          description: The sale was created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSalesDtoResponse'
+        '400':
+          description: The server cannot process the request due to a client error
+        '408':
+          description: The request timed out
+        '409':
+          description: There was a conflict when creating the sale
+        '500':
+          description: There was an internal server error
+        '502':
+          description: Bad Gateway, the server got an invalid response
+        '503':
+          description: The service is unavailable
+        '504':
+          description: The Gateway timed out
+    get:
+      summary: Return a page of sales
+      operationId: searchAllSales
+      tags:
+        - Sales
+      parameters:
+        - name: initialDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: finalDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: cpf
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          required: false
+          schema:
+            type: string
+            example: id,asc
+      responses:
+        '200':
+          description: Return a list of sales
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponsePageSalesDtoResponse'
+        '400':
+          description: The server cannot process the request due to a client error
+        '408':
+          description: The request timed out
+        '500':
+          description: There was an internal server error
+        '503':
+          description: The service is unavailable
+        '504':
+          description: The Gateway timed out
+  /sales/{id}:
+    get:
+      summary: Return one sale
+      operationId: searchSale
+      tags:
+        - Sales
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The sale was returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSalesDtoResponse'
+        '400':
+          description: The server cannot process the request due to a client error
+        '404':
+          description: There wasn't a sale with the ID that was informed
+        '408':
+          description: The request timed out
+        '500':
+          description: There was an internal server error
+        '503':
+          description: The service is unavailable
+        '504':
+          description: The Gateway timed out
+    delete:
+      summary: Delete a sale passing the ID
+      operationId: cancelSale
+      tags:
+        - Sales
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The sale was deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseString'
+        '404':
+          description: There wasn't a sale with the ID that was informed
+        '408':
+          description: The request timed out
+        '500':
+          description: There was an internal server error
+        '502':
+          description: Bad Gateway, the server got an invalid response
+        '503':
+          description: The service is unavailable
+        '504':
+          description: The Gateway timed out
 components:
   schemas:
     ClientRequest:
@@ -354,6 +508,39 @@ components:
       properties:
         data:
           type: string
+    ResponseSalesDtoResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SalesDtoResponse'
+    ResponsePageSalesDtoResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            content:
+              type: array
+              items:
+                $ref: '#/components/schemas/SalesDtoResponse'
+            totalElements:
+              type: integer
+            totalPages:
+              type: integer
+            size:
+              type: integer
+            number:
+              type: integer
+            sort:
+              type: object
+            first:
+              type: boolean
+            last:
+              type: boolean
+            numberOfElements:
+              type: integer
+            empty:
+              type: boolean
   responses:
     BadRequest:
       description: The server cannot process the request due to a client error
