@@ -63,11 +63,11 @@ resource "aws_lb_target_group" "sales_api" {
 
 resource "aws_lb_listener_rule" "sales_rule"{
   listener_arn = data.aws_lb_listener.lb_listener.arn
-  priority = 11
+  priority = 12
 
   condition {
     path_pattern {
-      values = ["/v1/dealership/saless*"]
+      values = ["/v1/dealership/sales*"]
     }
   }
 
