@@ -1,23 +1,32 @@
 package integrated;
 
-import br.com.dealership.api_client.adapter.in.controller.dto.request.AddressDtoRequest;
-import br.com.dealership.api_client.adapter.in.controller.dto.request.ClientDtoRequest;
-import br.com.dealership.api_client.adapter.in.controller.dto.request.ClientDtoUpdateRequest;
+import br.com.dealership.client.api.adapter.in.controller.dto.request.AddressDtoRequest;
+import br.com.dealership.client.api.adapter.in.controller.dto.request.ClientDtoRequest;
+import br.com.dealership.client.api.adapter.in.controller.dto.request.ClientDtoUpdateRequest;
+import integrated.client.SqsClient;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import lombok.RequiredArgsConstructor;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+
+import java.time.Duration;
 
 import static integrated.wiremock.MockServer.mockGetAddressByPostCode;
 import static integrated.wiremock.MockServer.mockGetAddressByPostCodeWithServerError;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @RequiredArgsConstructor
 class ClientControllerIT extends BaseIT {
+
+    private static final String QUEUE_NAME = "client-car-creation-event-queue";
     private static final String URL_WITH_CPF_PATH_PARAMETER = "/v1/dealership/clients/{cpf}";
     private static final String URL = "/v1/dealership/clients";
 
@@ -40,6 +49,21 @@ class ClientControllerIT extends BaseIT {
                 .body("data.address.streetName", equalTo("Test Street"))
                 .body("data.address.stateAbbreviation", equalTo("TT"))
                 .body("data.address.city", equalTo("Test"));
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofSeconds(1))
+                .untilAsserted(() -> {
+                    final var message = SqsClient.getMessageFromQueue(QUEUE_NAME);
+                    assertNotNull(message);
+                    assertTrue(message.isPresent());
+
+                    final var eventTypeHeader = message.get().getHeaders().get("eventType");
+                    final var body = message.get().getPayload();
+
+                    assertEquals("ClientCreated", eventTypeHeader);
+                    assertEquals(client.cpf(), body);
+                });
     }
 
     @DisplayName("Should create the client even if the via cep api returns an exception")
