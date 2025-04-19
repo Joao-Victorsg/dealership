@@ -1,6 +1,6 @@
 package integrated;
 
-import br.com.dealership.api_client.ApiClientApplication;
+import br.com.dealership.client.api.ApiClientApplication;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
