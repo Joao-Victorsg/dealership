@@ -5,7 +5,7 @@ ENV tz=gmt-3
 RUN apk --no-cache --update add openjdk21  \
   && apk update && apk upgrade
 
-COPY target/client-api-0.2.0-SNAPSHOT.jar client-api.jar
+COPY target/client-api-0.3.0-SNAPSHOT.jar client-api.jar
 
 EXPOSE 8085
 

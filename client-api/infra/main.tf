@@ -9,7 +9,7 @@ resource "aws_ecs_task_definition" "api-client" {
   container_definitions = <<DEFINITION
 [
   {
-    "image": "joaovictorsg/client-api:1.0",
+    "image": "joaovictorsg/client-api:1.3",
     "cpu": 1024,
     "memory": 2048,
     "name": "client-api",
