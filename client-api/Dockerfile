@@ -7,6 +7,6 @@ RUN apk --no-cache --update add openjdk21  \
 
 COPY target/client-api-0.2.0-SNAPSHOT.jar client-api.jar
 
-EXPOSE 8086
+EXPOSE 8085
 
 ENTRYPOINT ["sh","-c","java -jar /client-api.jar"]
