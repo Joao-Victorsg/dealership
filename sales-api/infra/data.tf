@@ -31,3 +31,7 @@ data "aws_lb_listener" "lb_listener" {
 data "aws_ecs_cluster" "cluster"{
   cluster_name = "api-dealership"
 }
+
+data "aws_sns_topic" "sales_topic"{
+  name = "sales-topic"
+}

@@ -1,18 +1,25 @@
 package integrated;
 
 import br.com.dealership.sales_api.adapter.in.controller.dto.request.SalesDtoRequest;
+import integrated.client.SqsContainerClient;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
+import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +43,25 @@ import static org.hamcrest.CoreMatchers.notNullValue;
                 .body("data.id", notNullValue())
                 .body("data.cpf", equalTo(sale.cpf()))
                 .body("data.vin", equalTo(sale.vin()));
+
+        Awaitility.await()
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofSeconds(1))
+                .untilAsserted(() -> {
+                    final var message = SqsContainerClient.getMessageFromQueue();
+                    assertNotNull(message);
+                    assertFalse(message.isEmpty());
+                    assertEquals(1,message.size());
+
+                    final var body = new JSONObject(message.getFirst().body());
+
+                    final var innerMessage = new JSONObject(body.getString("Message"));
+                    assertNotNull(innerMessage.getString("id"));
+                    assertEquals(sale.cpf(), innerMessage.getString("cpf"));
+                    assertEquals(sale.vin(), innerMessage.getString("vin"));
+                    assertNotNull(innerMessage.getString("registrationDate"));
+
+                });
     }
 
     @DisplayName("Given a request to create a sale with a car that is already sold, return 500")
