@@ -5,6 +5,7 @@ import br.com.dealership.client.api.core.domain.ClientModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.usecase.port.AddressServicePort;
 import br.com.dealership.client.api.core.usecase.port.ClientServicePort;
+import br.com.dealership.client.api.core.usecase.port.SendCreationEventPort;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -28,6 +30,9 @@ class CreateClientUseCaseTest {
     @Mock
     private AddressServicePort addressServicePort;
 
+    @Mock
+    private SendCreationEventPort sendCreationEventPort;
+
     @InjectMocks
     private CreateClientUseCase createClientUseCase;
 
@@ -38,6 +43,7 @@ class CreateClientUseCaseTest {
 
         when(addressServicePort.search(clientModel.clientAddress())).thenReturn(addressModel);
         when(clientServicePort.create(any(ClientModel.class))).thenReturn(clientModel);
+        doNothing().when(sendCreationEventPort).sendCreationEvent(clientModel.cpf());
 
         final var response = assertDoesNotThrow(() -> createClientUseCase.execute(clientModel));
 
