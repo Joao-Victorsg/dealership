@@ -16,8 +16,8 @@ resource "aws_ecs_task_definition" "car_api" {
     "networkMode": "awsvpc",
     "portMappings": [
       {
-        "containerPort": 8086,
-        "hostPort": 8086
+        "containerPort": 8087,
+        "hostPort": 8087
       }
     ],
     "environment": [
@@ -33,8 +33,8 @@ resource "aws_security_group" "car_api_sg" {
 
   ingress {
     protocol        = "tcp"
-    from_port       = 8086
-    to_port         = 8086
+    from_port       = 8087
+    to_port         = 8087
     security_groups = [data.aws_security_group.lb_sg.id]
   }
 
@@ -48,7 +48,7 @@ resource "aws_security_group" "car_api_sg" {
 
 resource "aws_lb_target_group" "car_api" {
   name        = "car-api-target-group"
-  port        = 8086
+  port        = 8087
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.vpc.id
   target_type = "ip"
@@ -92,7 +92,7 @@ resource "aws_ecs_service" "car_api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.car_api.id
     container_name   = "car-api"
-    container_port   = 8086
+    container_port   = 8087
   }
 }
 

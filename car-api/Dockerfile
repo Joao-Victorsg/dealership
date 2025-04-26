@@ -7,6 +7,6 @@ RUN apk --no-cache --update add openjdk21  \
 
 COPY target/car.api-0.4.0-SNAPSHOT.jar car-api.jar
 
-EXPOSE 8086
+EXPOSE 8087
 
 ENTRYPOINT ["sh","-c","java -jar /car-api.jar"]
