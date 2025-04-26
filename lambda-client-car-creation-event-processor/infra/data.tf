@@ -21,3 +21,7 @@ data "aws_secretsmanager_secret_version" "database_secret_version"{
 data "aws_sqs_queue" "creation_event_queue"{
   name = "client-car-creation-event-queue"
 }
+
+data "aws_ecr_repository" "lambda_creation_event_processor"{
+  name = "joaovictorsg/lambda-creation-event-processor"
+}

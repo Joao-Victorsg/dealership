@@ -1,10 +1,8 @@
 resource "aws_lambda_function" "client_car_creation_event_processor" {
   function_name = "Client-Car-Creation-Event-Processor"
-  filename = "..\\lambda\\lambda.zip"
   role          = aws_iam_role.lambda_exec_role.arn
-  source_code_hash = filebase64sha256("..\\lambda\\lambda.zip")
-  runtime = "python3.11"
-  handler = "lambda_handler.lambda_handler"
+  image_uri = "${data.aws_ecr_repository.lambda_creation_event_processor.repository_url}:1.5"
+  package_type = "Image"
 
   environment {
     variables = {
