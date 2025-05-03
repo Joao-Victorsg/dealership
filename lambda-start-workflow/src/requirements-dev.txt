@@ -1,0 +1,3 @@
+pydantic
+pytest
+boto3
