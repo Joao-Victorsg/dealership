@@ -1,0 +1,48 @@
+{
+    "Comment": "Parallel fetch of car and client info, then generate invoice",
+    "StartAt": "FetchCarAndClient",
+    "States": {
+      "FetchCarAndClient": {
+        "Type": "Parallel",
+        "Branches": [
+          {
+            "StartAt": "FetchCarInfo",
+            "States": {
+              "FetchCarInfo": {
+                "Type": "Task",
+                "Resource": "${lambda_fetch_car_info_arn}",
+                "End": true
+              }
+            }
+          },
+          {
+            "StartAt": "FetchClientInfo",
+            "States": {
+              "FetchClientInfo": {
+                "Type": "Task",
+                "Resource": "${lambda_fetch_client_info_arn}",
+                "End": true
+              }
+            }
+          }
+        ],
+        "Next": "MergeResults"
+      },
+      "MergeResults": {
+        "Type": "Pass",
+        "Parameters": {
+          "saleId.$": "$.saleId",
+          "registrationDate.$": "$.registrationDate",
+          "car.$": "$[0]",
+          "client.$": "$[1]"
+        },
+        "Next": "GenerateInvoice"
+      },
+      "GenerateInvoice": {
+        "Type": "Task",
+        "Resource": "${lambda_invoice_processor_arn}",
+        "End": true
+      }
+    }
+  }
+  
