@@ -19,4 +19,4 @@ COPY --from=build /build/python /var/task/
 COPY . /var/task/
 
 # Lambda entry point
-CMD ["lambda_handler.lambda_handler"]
+CMD ["app.lambda_handler.lambda_handler"]
