@@ -10,6 +10,7 @@ import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import br.com.dealership.client.api.core.usecase.CreateClientUseCase;
 import br.com.dealership.client.api.core.usecase.DeleteClientUseCase;
 import br.com.dealership.client.api.core.usecase.GetClientUseCase;
@@ -59,11 +60,12 @@ class ClientControllerTest {
     private ClientController clientController;
 
     @Test
-    void givenValidRequestCreateTheClient() throws ClientAlreadyExistsException {
+    void givenValidRequestCreateTheClient() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         final var clientDtoRequest = ClientDtoRequest.builder()
                 .cpf("123")
                 .address(AddressDtoRequest.builder()
                         .build())
+                .email("email@email.com")
                 .build();
 
         final var clientModel = ClientModel.builder()
@@ -87,8 +89,8 @@ class ClientControllerTest {
     }
 
     @Test
-    @DisplayName("Given a client request with a CPF that already exists, throw DuplicatedInfoException ")
-    void givenClientRequestWithCpfThatAlreadyExistsThrowClientAlreadyExistsException() throws ClientAlreadyExistsException {
+    @DisplayName("Given a client request with a CPF that already exists, throw ClientAlreadyExistsException ")
+    void givenClientRequestWithCpfThatAlreadyExistsThrowClientAlreadyExistsException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         final var clientDtoRequest = ClientDtoRequest.builder()
                 .cpf("123")
                 .address(AddressDtoRequest.builder()
@@ -104,6 +106,28 @@ class ClientControllerTest {
         doThrow(ClientAlreadyExistsException.class).when(createClientUseCase).execute(clientModel);
 
         assertThrows(ClientAlreadyExistsException.class, () -> clientController.createClient(clientDtoRequest));
+    }
+
+    @Test
+    @DisplayName("Given a client request with a email that is already in use, throw EmailAlreadyInUseException")
+    void givenClientRequestWithEmailAlreadyInUseThrowEmailAlreadyInUseException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
+        final var clientDtoRequest = ClientDtoRequest.builder()
+                .cpf("123")
+                .email("email@email.com")
+                .address(AddressDtoRequest.builder()
+                        .build())
+                .build();
+
+        final var clientModel = ClientModel.builder()
+                .cpf(clientDtoRequest.cpf())
+                .email("email@email.com")
+                .clientAddress(AddressModel.builder().build())
+                .build();
+
+        when(clientMapper.toModel(clientDtoRequest)).thenReturn(clientModel);
+        doThrow(EmailAlreadyInUseException.class).when(createClientUseCase).execute(clientModel);
+
+        assertThrows(EmailAlreadyInUseException.class, () -> clientController.createClient(clientDtoRequest));
     }
 
     @Test

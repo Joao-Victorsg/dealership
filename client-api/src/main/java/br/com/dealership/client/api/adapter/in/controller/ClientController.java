@@ -8,6 +8,7 @@ import br.com.dealership.client.api.adapter.mapper.ClientMapper;
 import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import br.com.dealership.client.api.core.usecase.CreateClientUseCase;
 import br.com.dealership.client.api.core.usecase.DeleteClientUseCase;
 import br.com.dealership.client.api.core.usecase.GetClientUseCase;
@@ -112,7 +113,7 @@ public class ClientController {
             @ApiResponse(responseCode = "504", description = "The Gateway timed out")
     })
     @PostMapping(path = "/clients", produces = "application/json")
-    public ResponseEntity<Response<ClientDtoResponse>> createClient(@RequestBody @Valid final ClientDtoRequest request) throws ClientAlreadyExistsException {
+    public ResponseEntity<Response<ClientDtoResponse>> createClient(@RequestBody @Valid final ClientDtoRequest request) throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         Logger.info("Starting process to create the client: " + request);
 
         final var clientModel = clientMapper.toModel(request);

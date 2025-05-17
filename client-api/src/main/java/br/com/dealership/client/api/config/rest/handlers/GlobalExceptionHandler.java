@@ -1,10 +1,10 @@
 package br.com.dealership.client.api.config.rest.handlers;
 
-
 import br.com.dealership.client.api.adapter.in.controller.dto.response.Response;
 import br.com.dealership.client.api.adapter.in.controller.dto.response.ResponseError;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -24,6 +24,13 @@ public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(value = {EmailAlreadyInUseException.class})
+    protected ResponseEntity<Response<ResponseError>> handleEmailAlreadyInUseException(EmailAlreadyInUseException exception){
+        var response = buildResponseException(exception);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
     @ExceptionHandler(value = {ClientNotFoundException.class})
     protected ResponseEntity<Response<ResponseError>> handleClientNotFoundException(ClientNotFoundException exception){
         var response = buildResponseException(exception);
@@ -38,5 +45,4 @@ public class GlobalExceptionHandler<T> extends ResponseEntityExceptionHandler {
                 .build()
         );
     }
-
 }

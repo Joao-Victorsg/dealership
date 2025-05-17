@@ -3,6 +3,7 @@ package br.com.dealership.client.api.core.usecase;
 import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import br.com.dealership.client.api.core.usecase.port.AddressServicePort;
 import br.com.dealership.client.api.core.usecase.port.ClientServicePort;
 import br.com.dealership.client.api.core.usecase.port.SendCreationEventPort;
@@ -37,7 +38,7 @@ class CreateClientUseCaseTest {
     private CreateClientUseCase createClientUseCase;
 
     @Test
-    void shouldExecuteWithSuccess() throws ClientAlreadyExistsException {
+    void shouldExecuteWithSuccess() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         final var addressModel = Instancio.create(AddressModel.class);
         final var clientModel = Instancio.create(ClientModel.class);
 
@@ -51,7 +52,7 @@ class CreateClientUseCaseTest {
     }
 
     @Test
-    void shouldThrowClientAlreadyExistsException() throws ClientAlreadyExistsException {
+    void shouldThrowClientAlreadyExistsException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         final var addressModel = Instancio.create(AddressModel.class);
         final var clientModel = Instancio.create(ClientModel.class);
 
@@ -59,5 +60,16 @@ class CreateClientUseCaseTest {
         doThrow(ClientAlreadyExistsException.class).when(clientServicePort).create(any(ClientModel.class));
 
         assertThrows(ClientAlreadyExistsException.class,() -> createClientUseCase.execute(clientModel));
+    }
+
+    @Test
+    void shouldThrowEmailAlreadyInUseException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
+        final var addressModel = Instancio.create(AddressModel.class);
+        final var clientModel = Instancio.create(ClientModel.class);
+
+        when(addressServicePort.search(clientModel.clientAddress())).thenReturn(addressModel);
+        doThrow(EmailAlreadyInUseException.class).when(clientServicePort).create(any(ClientModel.class));
+
+        assertThrows(EmailAlreadyInUseException.class,() -> createClientUseCase.execute(clientModel));
     }
 }

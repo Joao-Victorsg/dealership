@@ -23,6 +23,7 @@ public class ClientMapper {
                 .cpf(clientRequest.cpf())
                 .name(clientRequest.name())
                 .clientAddress(addressModel)
+                .email(clientRequest.email())
                 .build();
     }
 
@@ -34,6 +35,7 @@ public class ClientMapper {
                 .cpf(clientEntity.getCpf())
                 .name(clientEntity.getName())
                 .clientAddress(addressModel)
+                .email(clientEntity.getEmail())
                 .registrationDate(clientEntity.getRegistrationDate())
                 .build();
     }
@@ -45,6 +47,7 @@ public class ClientMapper {
                 .cpf(clientModel.cpf())
                 .name(clientModel.name())
                 .address(addressEntity)
+                .email(clientModel.email())
                 .registrationDate(LocalDateTime.now())
                 .build();
     }
@@ -58,7 +61,7 @@ public class ClientMapper {
                 .cpf(clientModel.cpf())
                 .registrationDate(clientModel.registrationDate())
                 .address(addressDtoResponse)
+                .email(clientModel.email())
                 .build();
     }
-
 }

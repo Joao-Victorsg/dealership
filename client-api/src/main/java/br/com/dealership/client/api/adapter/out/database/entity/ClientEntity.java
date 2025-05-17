@@ -7,7 +7,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,13 +28,15 @@ public class ClientEntity {
     private String cpf;
 
     @Column(nullable = false)
-    @NotNull
     @Size(max = 255)
     private String name;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", unique = true)
     private AddressEntity address;
+
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime registrationDate;

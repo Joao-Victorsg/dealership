@@ -10,6 +10,7 @@ public record ClientModel(
     String cpf,
     String name,
     AddressModel clientAddress,
+    String email,
     LocalDateTime registrationDate
 ) {
 

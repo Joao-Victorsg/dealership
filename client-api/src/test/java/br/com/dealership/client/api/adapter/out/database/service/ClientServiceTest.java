@@ -8,6 +8,7 @@ import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -85,7 +86,7 @@ class ClientServiceTest {
     }
 
     @Test
-    void shouldCreateNewClient() throws ClientAlreadyExistsException {
+    void shouldCreateNewClient() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         final var clientModel = ClientModel.builder().cpf("12345678900").build();
         final var clientEntity = ClientEntity.builder().cpf("12345678900").build();
 
@@ -107,6 +108,19 @@ class ClientServiceTest {
         when(clientRepository.findByCpf(clientModel.cpf())).thenReturn(Optional.of(clientEntity));
 
         assertThrows(ClientAlreadyExistsException.class, () -> clientService.create(clientModel));
+
+        verifyNoMoreInteractions(clientRepository, clientMapper);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSavingClientWithEmailAlreadyInUse() {
+        final var clientModel = ClientModel.builder().cpf("12345678900").email("email@email.com").build();
+        final var clientEntity = ClientEntity.builder().cpf("12345678900").email("email@email.com").build();
+
+        when(clientRepository.findByCpf(clientModel.cpf())).thenReturn(Optional.empty());
+        when(clientRepository.findByEmail(clientModel.email())).thenReturn(Optional.of(clientEntity));
+
+        assertThrows(EmailAlreadyInUseException.class, () -> clientService.create(clientModel));
 
         verifyNoMoreInteractions(clientRepository, clientMapper);
     }

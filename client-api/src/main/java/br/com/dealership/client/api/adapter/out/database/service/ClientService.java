@@ -7,6 +7,7 @@ import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
 import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
 import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
+import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import br.com.dealership.client.api.core.usecase.port.ClientServicePort;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +52,12 @@ public class ClientService implements ClientServicePort {
 
 
     @Override
-    public ClientModel create(final ClientModel clientModel) throws ClientAlreadyExistsException {
+    public ClientModel create(final ClientModel clientModel) throws ClientAlreadyExistsException, EmailAlreadyInUseException {
         if(clientRepository.findByCpf(clientModel.cpf()).isPresent())
             throw new ClientAlreadyExistsException("A client with this CPF already exists");
+
+        if(clientRepository.findByEmail(clientModel.email()).isPresent())
+            throw new EmailAlreadyInUseException("This email is already in use");
 
         final var entity = clientMapper.toEntity(clientModel);
 

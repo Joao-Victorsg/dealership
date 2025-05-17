@@ -38,6 +38,7 @@ class ClientMapperTest {
                 .cpf("12345678900")
                 .name("John Doe")
                 .address(addressDtoRequest)
+                .email("email@email.com")
                 .build();
 
         final var addressModel = AddressModel.builder()
@@ -52,6 +53,7 @@ class ClientMapperTest {
         assertEquals(clientDtoRequest.cpf(), clientModel.cpf());
         assertEquals(clientDtoRequest.name(), clientModel.name());
         assertEquals(addressModel, clientModel.clientAddress());
+        assertEquals(clientDtoRequest.email(), clientModel.email());
     }
 
     @Test
@@ -65,6 +67,7 @@ class ClientMapperTest {
                 .cpf("12345678900")
                 .name("John Doe")
                 .address(addressEntity)
+                .email("email@email.com")
                 .registrationDate(LocalDateTime.of(2023, 11, 26, 12, 0))
                 .build();
 
@@ -80,6 +83,7 @@ class ClientMapperTest {
         assertEquals(clientEntity.getCpf(), clientModel.cpf());
         assertEquals(clientEntity.getName(), clientModel.name());
         assertEquals(clientEntity.getRegistrationDate(), clientModel.registrationDate());
+        assertEquals(clientEntity.getEmail(), clientModel.email());
         assertEquals(addressModel, clientModel.clientAddress());
     }
 
@@ -94,6 +98,7 @@ class ClientMapperTest {
                 .cpf("12345678900")
                 .name("John Doe")
                 .clientAddress(addressModel)
+                .email("email@email.com")
                 .build();
 
         final var addressEntity = AddressEntity.builder()
@@ -107,6 +112,7 @@ class ClientMapperTest {
 
         assertEquals(clientModel.cpf(), clientEntity.getCpf());
         assertEquals(clientModel.name(), clientEntity.getName());
+        assertEquals(clientModel.email(), clientEntity.getEmail());
         assertEquals(addressEntity, clientEntity.getAddress());
     }
 
@@ -121,6 +127,7 @@ class ClientMapperTest {
                 .cpf("12345678900")
                 .name("John Doe")
                 .clientAddress(addressModel)
+                .email("email@email.com")
                 .registrationDate(LocalDateTime.of(2023, 11, 26, 12, 0))
                 .build();
 
@@ -136,6 +143,7 @@ class ClientMapperTest {
         assertEquals(clientModel.cpf(), clientDtoResponse.cpf());
         assertEquals(clientModel.name(), clientDtoResponse.name());
         assertEquals(clientModel.registrationDate(), clientDtoResponse.registrationDate());
+        assertEquals(clientModel.email(), clientDtoResponse.email());
         assertEquals(addressDtoResponse, clientDtoResponse.address());
     }
 }

@@ -33,7 +33,7 @@ class ClientControllerIT extends BaseIT {
     @DisplayName("Given a valid request to create a client then create it")
     @Test
     void givenValidRequestToCreateAClienteThenCreateIt() {
-        final var client = createClientDtoRequest("84531547812");
+        final var client = createClientDtoRequest("84531547812","email@email.com");
         mockGetAddressByPostCode("39999-999");
 
         RestAssured.given()
@@ -45,6 +45,7 @@ class ClientControllerIT extends BaseIT {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("data.name", equalTo(client.name()))
                 .body("data.cpf", equalTo(client.cpf()))
+                .body("data.email", equalTo(client.email()))
                 .body("data.address.postCode", equalTo("39999-999"))
                 .body("data.address.streetName", equalTo("Test Street"))
                 .body("data.address.stateAbbreviation", equalTo("TT"))
@@ -66,10 +67,49 @@ class ClientControllerIT extends BaseIT {
                 });
     }
 
+    @DisplayName("Given a request to create a client that already exists, return 409")
+    @Test
+    void givenRequestToCreateAClienteThatAlreadyExistsReturnConflict() {
+        final var client = createClientDtoRequest("94531541820","email10@email.com");
+
+        createClientThroughPostRequest(client);
+
+        mockGetAddressByPostCode("39999-999");
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(client)
+                .when()
+                .post(URL)
+                .then()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("data.details", equalTo("A client with this CPF already exists"));
+    }
+
+    @DisplayName("Given a request to create a client with a email that is already in use, return 409")
+    @Test
+    void givenRequestToCreateAClienteWithEmailThatIsAlreadyInUseReturnConflict() {
+        final var client = createClientDtoRequest("94531541822","email7@email.com");
+        final var clientWithEmailInUse = createClientDtoRequest("94531541823","email7@email.com");
+
+        createClientThroughPostRequest(client);
+
+        mockGetAddressByPostCode("39999-999");
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(clientWithEmailInUse)
+                .when()
+                .post(URL)
+                .then()
+                .statusCode(HttpStatus.CONFLICT.value())
+                .body("data.details", equalTo("This email is already in use"));
+    }
+
     @DisplayName("Should create the client even if the via cep api returns an exception")
     @Test
     void shouldCreateClientEvenIfViaCepApiReturnsAnException() {
-        final var client = createClientDtoRequest("12345678912");
+        final var client = createClientDtoRequest("12345678912","email2@email.com");
         mockGetAddressByPostCodeWithServerError("39999-999");
 
         RestAssured.given()
@@ -81,6 +121,7 @@ class ClientControllerIT extends BaseIT {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("data.name", equalTo(client.name()))
                 .body("data.cpf", equalTo(client.cpf()))
+                .body("data.email", equalTo(client.email()))
                 .body("data.address.postCode", equalTo("39999-999"))
                 .body("data.address.isAddressSearched", equalTo(false));
     }
@@ -88,7 +129,7 @@ class ClientControllerIT extends BaseIT {
     @DisplayName("Get a client by CPF with a valid request")
     @Test
     void givenValidRequestToGetAClientThenGetIt() {
-        final var client = createClientDtoRequest("11987654321");
+        final var client = createClientDtoRequest("11987654321","email3@email.com");
         mockGetAddressByPostCode("39999-999");
 
         createClientThroughPostRequest(client);
@@ -102,6 +143,7 @@ class ClientControllerIT extends BaseIT {
                 .statusCode(HttpStatus.OK.value())
                 .body("data.name", equalTo(client.name()))
                 .body("data.cpf", equalTo(client.cpf()))
+                .body("data.email", equalTo(client.email()))
                 .body("data.address.postCode", equalTo(client.address().postCode()))
                 .body("data.address.streetName", equalTo("Test Street"))
                 .body("data.address.stateAbbreviation", equalTo("TT"))
@@ -138,7 +180,7 @@ class ClientControllerIT extends BaseIT {
     @DisplayName("Given a valid request to update a client, do it")
     @Test
     void givenValidRequestToUpdateClientDoIt(){
-        final var client = createClientDtoRequest("22222222222");
+        final var client = createClientDtoRequest("22222222222","email4@email.com");
         final var clientDto = createClientUpdateDtoRequest("38888-888", "123");
         mockGetAddressByPostCode("39999-999");
         mockGetAddressByPostCode("38888-888");
@@ -179,7 +221,7 @@ class ClientControllerIT extends BaseIT {
     @DisplayName("Given a valid request to delete a client, do it")
     @Test
     void givenValidRequestToDeleteClientDoIt(){
-        final var client = createClientDtoRequest("48932486544");
+        final var client = createClientDtoRequest("48932486544","email5@email.com");
 
         mockGetAddressByPostCode("39999-999");
         createClientThroughPostRequest(client);
@@ -225,7 +267,7 @@ class ClientControllerIT extends BaseIT {
                 .build();
     }
 
-    private ClientDtoRequest createClientDtoRequest(String cpf) {
+    private ClientDtoRequest createClientDtoRequest(String cpf,String email) {
         return ClientDtoRequest.builder()
                 .name("teste-integrado")
                 .cpf(cpf)
@@ -233,6 +275,7 @@ class ClientControllerIT extends BaseIT {
                         .postCode("39999-999")
                         .streetNumber("321")
                         .build())
+                .email(email)
                 .build();
     }
 }

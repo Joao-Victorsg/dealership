@@ -26,11 +26,6 @@ data "aws_lb" "lb"{
   }
 }
 
-data "aws_lb_listener" "lb_listener" {
-  load_balancer_arn = data.aws_lb.lb.arn
-  port = 80
-}
-
 data "aws_ecs_cluster" "cluster"{
   cluster_name = "api-dealership"
 }
