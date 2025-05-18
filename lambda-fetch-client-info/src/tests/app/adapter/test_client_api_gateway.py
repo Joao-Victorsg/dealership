@@ -10,16 +10,19 @@ class TestClientApiGateway(unittest.TestCase):
     @patch("app.adapter.client_api_gateway.session.get")
     def test_get_client_by_cpf_success(self, mock_get):
         mock_response_data = {
-            "name": "João Silva",
-            "cpf": "12345678900",
-            "address": {
-                "postCode": "12345-678",
-                "city": "São Paulo",
-                "stateAbbreviation": "SP",
-                "streetName": "Rua das Flores",
-                "streetNumber": "123"
-            },
-            "registrationDate": "2020-01-01T00:00:00+00:00"
+            "data": {
+                   "name": "João Silva",
+                   "cpf": "12345678900",
+                   "email": "email@email.com",
+                   "address": {
+                       "postCode": "12345-678",
+                       "city": "São Paulo",
+                       "stateAbbreviation": "SP",
+                       "streetName": "Rua das Flores",
+                       "streetNumber": "123"
+                   },
+                   "registrationDate": "2020-01-01T00:00:00+00:00"
+               }
         }
         mock_response = MagicMock()
         mock_response.json.return_value = mock_response_data
@@ -32,6 +35,7 @@ class TestClientApiGateway(unittest.TestCase):
         self.assertIsInstance(result, ClientResponse)
         self.assertEqual(result.name, "João Silva")
         self.assertEqual(result.cpf, "12345678900")
+        self.assertEqual(result.email, "email@email.com")
         self.assertEqual(result.address.postCode, "12345-678")
         self.assertEqual(result.address.city, "São Paulo")
         self.assertEqual(result.address.stateAbbreviation, "SP")

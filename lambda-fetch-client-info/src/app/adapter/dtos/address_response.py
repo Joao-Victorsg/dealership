@@ -6,3 +6,6 @@ class AddressResponse(BaseModel):
     stateAbbreviation: str
     streetName: str
     streetNumber: str
+
+    class Config:
+            extra = "ignore"  # ignora campos extras no payload

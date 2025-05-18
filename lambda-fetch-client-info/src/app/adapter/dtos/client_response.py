@@ -6,4 +6,5 @@ class ClientResponse(BaseModel):
     name: str
     cpf: str
     address: AddressResponse
+    email: str
     registrationDate: datetime

@@ -18,8 +18,17 @@ def get_client_by_cpf(cpf: str) -> ClientResponse:
     try:
         response = session.get(url, timeout=settings.REQUEST_TIMEOUT)
         response.raise_for_status()
-        client_data = response.json()
-        return ClientResponse(**client_data)
+        client_data = response.json().get('data', {})
+
+        logger.info(f"Client data received: {client_data}")
+
+        return ClientResponse(
+                    name=client_data['name'],
+                    cpf=client_data['cpf'],
+                    email=client_data['email'],
+                    address=client_data['address'],
+                    registrationDate=client_data['registrationDate']
+                )
     except Exception as e:
         logger.error(f"Error fetching client for cpf {cpf}: {e}")
         raise

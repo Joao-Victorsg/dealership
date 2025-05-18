@@ -1,5 +1,5 @@
 resource "aws_iam_role" "lambda_exec_role" {
-  name = "lambda"
+  name = "lambda_exec_role_fetch_client_info"
   assume_role_policy = file("${path.module}/policy/trust-policy.json")
 }
 
