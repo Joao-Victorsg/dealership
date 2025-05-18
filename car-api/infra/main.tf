@@ -49,32 +49,33 @@ resource "aws_security_group" "car_api_sg" {
 resource "aws_lb_target_group" "car_api" {
   name        = "car-api-target-group"
   port        = 8087
-  protocol    = "HTTP"
+  protocol    = "TCP"
   vpc_id      = data.aws_vpc.vpc.id
   target_type = "ip"
 
   health_check {
+    enabled             = true
     path                = "/actuator/health"
+    port                = 8087
+    protocol = "HTTP"
     interval            = 30
     healthy_threshold   = 2
     unhealthy_threshold = 2
+    timeout             = 6
   }
 }
 
-resource "aws_lb_listener_rule" "car_rule"{
-  listener_arn = data.aws_lb_listener.lb_listener.arn
-  priority = 11
+resource "aws_lb_listener" "car_api" {
+  load_balancer_arn = data.aws_lb.lb.arn
+  port              = "8087"
+  protocol          = "TCP"
 
-  condition {
-    path_pattern {
-      values = ["/v1/dealership/cars*"]
-    }
-  }
-
-  action {
-    type = "forward"
+  default_action {
+    type             = "forward"
     target_group_arn = aws_lb_target_group.car_api.arn
   }
+
+  depends_on = [aws_lb_target_group.car_api]
 }
 
 resource "aws_ecs_service" "car_api" {
