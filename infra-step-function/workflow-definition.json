@@ -1,48 +1,62 @@
 {
-    "Comment": "Parallel fetch of car and client info, then generate invoice",
-    "StartAt": "FetchCarAndClient",
-    "States": {
-      "FetchCarAndClient": {
-        "Type": "Parallel",
-        "Branches": [
-          {
-            "StartAt": "FetchCarInfo",
-            "States": {
-              "FetchCarInfo": {
-                "Type": "Task",
-                "Resource": "${lambda_fetch_car_info_arn}",
-                "End": true
-              }
-            }
-          },
-          {
-            "StartAt": "FetchClientInfo",
-            "States": {
-              "FetchClientInfo": {
-                "Type": "Task",
-                "Resource": "${lambda_fetch_client_info_arn}",
-                "End": true
-              }
+  "Comment": "Parallel fetch of car and client info, then generate invoice",
+  "StartAt": "FetchCarAndClient",
+  "States": {
+    "FetchCarAndClient": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "FetchCarInfo",
+          "States": {
+            "FetchCarInfo": {
+              "Type": "Task",
+              "Resource": "${lambda_fetch_car_info_arn}",
+              "End": true
             }
           }
-        ],
-        "Next": "MergeResults"
-      },
-      "MergeResults": {
-        "Type": "Pass",
-        "Parameters": {
-          "saleId.$": "$.saleId",
-          "registrationDate.$": "$.registrationDate",
-          "car.$": "$[0]",
-          "client.$": "$[1]"
         },
-        "Next": "GenerateInvoice"
+        {
+          "StartAt": "FetchClientInfo",
+          "States": {
+            "FetchClientInfo": {
+              "Type": "Task",
+              "Resource": "${lambda_fetch_client_info_arn}",
+              "End": true
+            }
+          }
+        }
+      ],
+      "ResultPath": "$.fetchedData",
+      "Next": "MergeResults"
+    },
+    "MergeResults": {
+      "Type": "Pass",
+      "Parameters": {
+        "saleId.$": "$.id",
+        "registrationDate.$": "$.registrationDate",
+        "car.$": "$.fetchedData[0]",
+        "client.$": "$.fetchedData[1]"
       },
-      "GenerateInvoice": {
-        "Type": "Task",
-        "Resource": "${lambda_invoice_processor_arn}",
-        "End": true
-      }
+      "ResultPath": "$.merged",
+      "Next": "GenerateInvoice"
+    },
+    "GenerateInvoice": {
+      "Type": "Task",
+      "Resource": "${lambda_invoice_processor_arn}",
+      "InputPath": "$.merged",
+      "ResultPath": "$.merged.invoice",
+      "Next": "SendEmail"
+    },
+    "SendEmail": {
+      "Type": "Task",
+      "Resource": "${lambda_send_mail_arn}",
+      "Parameters": {
+        "invoice_key.$": "$.merged.invoice.invoice_key",
+        "client_email.$": "$.merged.client.email",
+        "client_name.$": "$.merged.client.name",
+        "car_model.$": "$.merged.car.model"
+      },
+      "End": true
     }
   }
-  
+}

@@ -5,6 +5,7 @@ data "template_file" "state_machine_definition" {
     lambda_fetch_car_info_arn    = local.lambda_fetch_car_info_arn
     lambda_fetch_client_info_arn = local.lambda_fetch_client_info_arn
     lambda_invoice_processor_arn = local.lambda_invoice_processor_arn
+    lambda_send_mail_arn         = local.lambda_send_mail_arn
   }
 }
 
