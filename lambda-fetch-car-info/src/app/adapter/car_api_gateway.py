@@ -18,7 +18,7 @@ def get_car_by_vin(vin: str) -> CarResponse:
     try:
         response = session.get(url, timeout=settings.REQUEST_TIMEOUT)
         response.raise_for_status()
-        car_data = response.json()
+        car_data = response.json().get('data', {})
         return CarResponse(**car_data)
     except Exception as e:
         logger.error(f"Error fetching car for VIN {vin}: {e}")
