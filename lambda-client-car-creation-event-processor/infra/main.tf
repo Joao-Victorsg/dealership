@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "client_car_creation_event_processor" {
   function_name = "Client-Car-Creation-Event-Processor"
   role          = aws_iam_role.lambda_exec_role.arn
-  image_uri = "${data.aws_ecr_repository.lambda_creation_event_processor.repository_url}:1.5"
+  image_uri = "${data.aws_ecr_repository.lambda_creation_event_processor.repository_url}:latest"
   package_type = "Image"
 
   environment {

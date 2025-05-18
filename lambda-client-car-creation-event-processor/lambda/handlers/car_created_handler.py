@@ -1,4 +1,3 @@
-import pytest
 from adapter.postgres_adapter import save_to_database
 from handlers.event_handler import EventHandler
 
