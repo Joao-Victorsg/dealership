@@ -14,7 +14,7 @@ def generate_invoice(event: InvoiceEvent) -> str:
         <h2>Client Information</h2>
         <p><strong>Name:</strong> {event.client.name}</p>
         <p><strong>CPF:</strong> {event.client.cpf}</p>
-        <p><strong>Address:</strong> {event.client.address.streetName}, {event.client.address.streetNumber}, {event.client.address.city} - {event.client.address.stateAbbreviation}, {event.client.address.postcode}</p>
+        <p><strong>Address:</strong> {event.client.address.streetName}, {event.client.address.streetNumber}, {event.client.address.city} - {event.client.address.stateAbbreviation}, {event.client.address.postCode}</p>
         <h2>Car Information</h2>
         <p><strong>Model:</strong> {event.car.model} ({event.car.modelYear})</p>
         <p><strong>Manufacturer:</strong> {event.car.manufacturer}</p>

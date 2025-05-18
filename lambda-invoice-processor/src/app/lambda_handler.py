@@ -16,14 +16,12 @@ def lambda_handler(event, context):
         invoice_html = generate_invoice(invoice_data)
         
         # Upload the invoice HTML to S3
-        s3_url = upload_invoice(invoice_data.saleId, invoice_html)
+        s3_url,key = upload_invoice(invoice_data.saleId, invoice_html)
         
         return {
-            "statusCode": 200,
-            "body": json.dumps({
                 "message": "Invoice generated successfully",
-                "s3_url": s3_url
-            })
+                "s3_url": s3_url,
+                "invoice_key": key
         }
     except Exception as e:
         logger.exception("Error generating invoice")
