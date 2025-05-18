@@ -2,7 +2,7 @@ services:
 
   localstack:
     container_name: "aws-dealership"
-    image: localstack/localstack-pro:4.3.0
+    image: localstack/localstack-pro:4.4.0
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway
       - "127.0.0.1:4510-4559:4510-4559"  # external services port range
@@ -14,14 +14,51 @@ services:
       - NEPTUNE_USE_SSL=1
       - PERSISTENCE=1
       - ECS_REMOVE_CONTAINERS=0
+      - GATEWAY_LISTEN=0.0.0.0:4566,0.0.0.0:8085,0.0.0.0:8086,0.0.0.0:8087
+      - SMTP_HOST=smtp4dev
+      - SMTP_PORT=25
+      - SMTP_USERNAME=
+      - SMTP_PASSWORD=
+      - SMTP_EMAIL=noreply@example.com
     volumes:
       - "./localstack/localstack-init.sh:/etc/localstack/init/ready.d/localstack-init.sh"
       - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
     networks:
       - dealership-network
+
+  smtp4dev:
+    container_name: smtp4dev
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      # Change the number before : to the port the web interface should be accessible on
+      - '5000:80'
+      # Change the number before : to the port the SMTP server should be accessible on
+      - '25:25'
+      # Change the number before : to the port the IMAP server should be accessible on
+      - '143:143'
+    volumes:
+      # This is where smtp4dev stores the database..
+      - smtp4dev-data:/smtp4dev
+    environment:
+      # Uncomment to customise these settings
+      # This is not a complete list of the available settings.
+      # See the documentation in appsettings.json for a full list.
+
+      #Specifies the virtual path from web server root where SMTP4DEV web interface will be hosted. e.g. "/" or "/smtp4dev"
+      #- ServerOptions__BasePath=/smtp4dev
+
+      #Specifies the URLs the web UI will use inside the container.
+      - ServerOptions__Urls=http://*:80
+
+      #Specifies the server hostname. Used in auto-generated TLS certificate if enabled.
+      - ServerOptions__HostName=smtp4dev
+    networks:
+      - dealership-network
 volumes:
   cache:
+  smtp4dev-data:
     driver: local
 
 networks:
