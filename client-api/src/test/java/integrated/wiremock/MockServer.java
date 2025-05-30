@@ -37,6 +37,22 @@ public final class MockServer {
                     .willReturn(serverError()));
     }
 
+    public static void mockGetAddressByPostCodeWithUnavailable(String postCode){
+        final String VIA_CEP_PATH="/ws/" + postCode + "/json";
+        WireMock.stubFor(get(urlMatching(VIA_CEP_PATH))
+                .willReturn(WireMock.serviceUnavailable()));
+    }
+
+    public static void mockGetAddressByPostCodeWithSlowResponse(String postCode){
+        final String VIA_CEP_PATH="/ws/" + postCode + "/json";
+        WireMock.stubFor(get(urlMatching(VIA_CEP_PATH))
+                .willReturn(aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withFixedDelay(7000)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(JSON_MAPPER.toJson(addressMock(postCode)))));
+    }
+
     private static AddressDtoGateway addressMock(String postCode){
         return AddressDtoGateway.builder()
                 .postCode(postCode)

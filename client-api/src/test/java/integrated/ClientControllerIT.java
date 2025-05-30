@@ -6,7 +6,6 @@ import br.com.dealership.client.api.adapter.in.controller.dto.request.ClientDtoU
 import integrated.client.SqsClient;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import lombok.RequiredArgsConstructor;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@RequiredArgsConstructor
 class ClientControllerIT extends BaseIT {
 
     private static final String QUEUE_NAME = "client-car-creation-event-queue";
     private static final String URL_WITH_CPF_PATH_PARAMETER = "/v1/dealership/clients/{cpf}";
     private static final String URL = "/v1/dealership/clients";
+
+
 
     @DisplayName("Given a valid request to create a client then create it")
     @Test

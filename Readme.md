@@ -1,8 +1,10 @@
 # Dealership Microservices
 
+*** Still in progress ***
+
 This is a study project that demonstrates a microservices-based cloud architecture for a car dealership system using AWS services. The architecture is designed with event-driven components, infrastructure-as-code using Terraform, and services deployed locally using LocalStack.
 
-The system supports CRUD operations for **Clients**, **Cars**, and **Sales**, and includes an event-driven invoice generation flow integrated with **Step Functions**, **Lambda **, **S3**, and **SES**.
+The system supports CRUD operations for **Clients**, **Cars**, and **Sales**, and includes an event-driven invoice generation flow integrated with **Step Functions**, **Lambda**, **S3**, and **SES**.
 
 ## Architecture Overview
 

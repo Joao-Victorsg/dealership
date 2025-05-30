@@ -1,9 +1,7 @@
 package br.com.dealership.client.api.adapter.out.gateway;
 
-
 import br.com.dealership.client.api.adapter.out.gateway.dto.AddressDtoGateway;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(value = "via-cep-api", url = "${via-cep.url}")
 public interface SearchAddressGateway {
 
-    @CircuitBreaker(name="SearchAddressGatewaybyPostCode", fallbackMethod = "byPostCodeFallback")
+    @CircuitBreaker(name="searchAddressGatewaybyPostCode", fallbackMethod = "byPostCodeFallback")
     @GetMapping(value = "{postCode}/json", produces = "application/json")
     AddressDtoGateway byPostCode(@PathVariable("postCode") String postCode);
 
