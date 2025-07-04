@@ -16,8 +16,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static br.com.dealership.car.api.adapter.out.database.repository.specifications.CarSpecificationsFactory.betweenValues;
+import static br.com.dealership.car.api.adapter.out.database.repository.specifications.CarSpecificationsFactory.equalColor;
 import static br.com.dealership.car.api.adapter.out.database.repository.specifications.CarSpecificationsFactory.equalManufacturer;
 import static br.com.dealership.car.api.adapter.out.database.repository.specifications.CarSpecificationsFactory.equalModel;
 import static br.com.dealership.car.api.adapter.out.database.repository.specifications.CarSpecificationsFactory.equalModelYear;
@@ -39,18 +41,17 @@ public class CarService implements CarServicePort {
 
     @Override
     public Page<CarModel> searchAll(final SearchFilter searchFilter, final Pageable pageable) {
-        final var specification = Specification.where(betweenValues(searchFilter.initialValue(),searchFilter.finalValue()))
-                .and(equalModelYear(searchFilter.modelYear()))
-                .and(equalModel(searchFilter.model()))
-                .and(equalManufacturer(searchFilter.manufacturer()));
+        final var specification = Specification
+                .where(betweenValues(searchFilter.initialValue(), searchFilter.finalValue()))
+                .and(equalModelYear(searchFilter.modelYear())).and(equalModel(searchFilter.model()))
+                .and(equalManufacturer(searchFilter.manufacturer()))
+                .and(equalColor(searchFilter.color()));
 
-        final var carsEntities = carRepository.findAll(specification,pageable);
+        final var carsEntities = carRepository.findAll(specification, pageable);
 
-        final var carModels = carsEntities.stream()
-                .map(carMapper::toCarModel)
-                .toList();
+        final var carModels = carsEntities.stream().map(carMapper::toCarModel).toList();
 
-        return new PageImpl<>(carModels,carsEntities.getPageable(),carModels.size());
+        return new PageImpl<>(carModels, carsEntities.getPageable(), carModels.size());
     }
 
     @Override
@@ -76,17 +77,33 @@ public class CarService implements CarServicePort {
 
     @Transactional
     @Override
-    public CarModel update(final String vin, final String color, final BigDecimal value) throws CarNotFoundException{
+    public CarModel update(final String vin, final String color, final BigDecimal value, final String modelYear) throws CarNotFoundException {
         final var entity = carRepository.findByVin(vin)
                 .orElseThrow(() -> new CarNotFoundException("A car with this VIN was not found"));
 
         final var updatedCarToSave = entity.toBuilder()
-                .color(color)
-                .value(value)
+                .color(color != null ? color : entity.getColor())
+                .value(value != null ? value : entity.getValue())
+                .modelYear(modelYear != null ? modelYear : entity.getModelYear())
                 .build();
 
         final var updatedCar = carRepository.save(updatedCarToSave);
 
         return carMapper.toCarModel(updatedCar);
+    }
+
+    @Override
+    public List<String> getDistinctManufacturers() {
+        return carRepository.findDistinctManufacturersNative();
+    }
+
+    @Override
+    public List<String> getDistinctModels() {
+        return carRepository.findDistinctModelsNative();
+    }
+
+    @Override
+    public List<String> getModelsByManufacturer(String manufacturer) {
+        return carRepository.findDistinctModelsByManufacturerNative(manufacturer);
     }
 }

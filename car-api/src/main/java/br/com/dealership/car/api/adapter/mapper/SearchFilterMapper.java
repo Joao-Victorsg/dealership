@@ -10,13 +10,14 @@ import java.math.BigDecimal;
 @Component
 public class SearchFilterMapper {
 
-    public SearchFilter toSearchFilter(BigDecimal initialValue, BigDecimal finalValue, String model, String modelYear,String manufacturer){
+    public SearchFilter toSearchFilter(BigDecimal initialValue, BigDecimal finalValue, String model, String modelYear,String manufacturer,String color){
         return SearchFilter.builder()
                 .initialValue(initialValue)
                 .finalValue(finalValue)
                 .model(model)
                 .modelYear(modelYear)
                 .manufacturer(manufacturer)
+                .color(color)
                 .build();
     }
 }

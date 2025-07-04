@@ -12,6 +12,8 @@ import br.com.dealership.car.api.core.exceptions.CarNotFoundException;
 import br.com.dealership.car.api.core.usecase.CreateCarUseCase;
 import br.com.dealership.car.api.core.usecase.DeleteCarUseCase;
 import br.com.dealership.car.api.core.usecase.SearchCarUseCase;
+import br.com.dealership.car.api.core.usecase.SearchManufacturersUseCase;
+import br.com.dealership.car.api.core.usecase.SearchModelsUseCase;
 import br.com.dealership.car.api.core.usecase.UpdateCarUseCase;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -54,6 +58,12 @@ class CarControllerTest {
     @Mock
     private SearchFilterMapper searchFilterMapper;
 
+    @Mock
+    private SearchManufacturersUseCase searchManufacturersUseCase;
+
+    @Mock
+    private SearchModelsUseCase searchModelsUseCase;
+
     @InjectMocks
     private CarController carController;
 
@@ -78,19 +88,27 @@ class CarControllerTest {
         final var model = Instancio.create(CarModel.class);
 
         when(carMapper.toCarModel(request)).thenReturn(model);
-        doThrow(new CarAlreadyExistsException("Car already exists")).when(createCarUseCase).execute(model);
+        doThrow(new CarAlreadyExistsException("Car already exists")).when(createCarUseCase)
+                .execute(model);
 
-        assertThrows(CarAlreadyExistsException.class,() -> carController.createCar(request));
+        assertThrows(CarAlreadyExistsException.class, () -> carController.createCar(request));
     }
 
     @Test
     void searchByVin() throws CarNotFoundException {
         final var vin = "123";
         final var carModel = Instancio.create(CarModel.class);
+        final var carDtoResponse = Instancio.create(CarDtoResponse.class);
+
 
         when(searchCarUseCase.execute(vin)).thenReturn(carModel);
+        when(carMapper.toCarDtoResponse(carModel)).thenReturn(carDtoResponse);
 
-        assertDoesNotThrow(() -> carController.searchCarByVin(vin));
+        final var result = assertDoesNotThrow(() -> carController.searchCarByVin(vin));
+
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(carDtoResponse.vin(), result.getBody().data().vin());
     }
 
     @Test
@@ -99,7 +117,7 @@ class CarControllerTest {
 
         doThrow(CarNotFoundException.class).when(searchCarUseCase).execute(vin);
 
-        assertThrows(CarNotFoundException.class,() -> carController.searchCarByVin(vin));
+        assertThrows(CarNotFoundException.class, () -> carController.searchCarByVin(vin));
     }
 
     @Test
@@ -113,17 +131,22 @@ class CarControllerTest {
         final var modelYear = "2025";
         final var model = "Haval";
         final var manufacturer = "BYD";
+        final var color = "Black";
 
-        when(searchFilterMapper.toSearchFilter(initialValue,finalValue,model,modelYear,manufacturer)).thenReturn(searchFilter);
-        when(searchCarUseCase.execute(pageable,searchFilter)).thenReturn(new PageImpl<>(List.of(carModel)));
+        when(searchFilterMapper.toSearchFilter(initialValue, finalValue, model, modelYear,
+                manufacturer, color)).thenReturn(searchFilter);
+        when(searchCarUseCase.execute(pageable, searchFilter))
+                .thenReturn(new PageImpl<>(List.of(carModel)));
         when(carMapper.toCarDtoResponse(carModel)).thenReturn(carDtoResponse);
 
-        final var result = carController.searchAllCars(pageable,initialValue,finalValue,modelYear,model,manufacturer);
+        final var result = carController.searchAllCars(pageable, initialValue, finalValue,
+                modelYear, model, manufacturer, color);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isNotNull();
         assertThat(result.getBody().data().getContent()).hasSize(1);
-        assertThat(result.getBody().data().getContent().getFirst().vin()).isEqualTo(carDtoResponse.vin());
+        assertThat(result.getBody().data().getContent().getFirst().vin())
+                .isEqualTo(carDtoResponse.vin());
     }
 
     @Test
@@ -136,16 +159,16 @@ class CarControllerTest {
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).isNotNull();
-        assertThat(result.getBody().data()).isEqualTo("Car with VIN: "+ vin +" was deleted successfully");
+        assertThat(result.getBody().data())
+                .isEqualTo("Car with VIN: " + vin + " was deleted successfully");
     }
 
     @Test
     void deleteCarShouldThrowCarNotFoundException() throws CarNotFoundException {
         final var vin = "123ABC";
-        doThrow(new CarNotFoundException("Car not found"))
-                .when(deleteCarUseCase).execute(vin);
+        doThrow(new CarNotFoundException("Car not found")).when(deleteCarUseCase).execute(vin);
 
-        assertThrows(CarNotFoundException.class,() ->carController.deleteCar(vin));
+        assertThrows(CarNotFoundException.class, () -> carController.deleteCar(vin));
     }
 
     @Test
@@ -155,7 +178,7 @@ class CarControllerTest {
         final var carModel = Instancio.create(CarModel.class);
         final var response = Instancio.create(CarDtoResponse.class);
 
-        when(updateCarUseCase.execute(vin,request.color(),request.value())).thenReturn(carModel);
+        when(updateCarUseCase.execute(vin,request.color(),request.value(),request.modelYear())).thenReturn(carModel);
         when(carMapper.toCarDtoResponse(carModel)).thenReturn(response);
 
         final var result = carController.updateCar(vin, request);
@@ -165,16 +188,59 @@ class CarControllerTest {
         assertThat(result.getBody().data().vin()).isEqualTo(response.vin());
         assertThat(result.getBody().data().color()).isEqualTo(response.color());
         assertThat(result.getBody().data().value()).isEqualTo(response.value());
+        assertThat(result.getBody().data().modelYear()).isEqualTo(response.modelYear());
     }
 
     @Test
     void updateCarShouldThrowCarNotFoundException() throws CarNotFoundException {
-        final var vin = "123ABC";
-        final var request = Instancio.create(CarDtoUpdateRequest.class);
+        final var vin = "123456789";
+        final var request = CarDtoUpdateRequest.builder().color("red")
+                .value(BigDecimal.valueOf(10000.00)).modelYear("2023").build();
 
-        doThrow(new CarNotFoundException("Car not found"))
-                .when(updateCarUseCase).execute(vin,request.color(),request.value());
+        when(updateCarUseCase.execute(vin, request.color(), request.value(), request.modelYear()))
+                .thenThrow(CarNotFoundException.class);
 
-        assertThrows(CarNotFoundException.class,() ->carController.updateCar(vin, request));
+        assertThrows(CarNotFoundException.class, () -> carController.updateCar(vin, request));
     }
+
+    @Test
+    void searchManufacturersShouldReturnListOfManufacturers() {
+        final var manufacturers = List.of("Toyota", "Honda", "Ford");
+
+        when(searchManufacturersUseCase.execute()).thenReturn(manufacturers);
+
+        final var result = carController.searchManufacturers();
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().data().getFirst().toLowerCase()).isEqualTo("Toyota".toLowerCase());
+    }
+
+    @Test
+    void searchModelsShouldReturnListOfModels() {
+        final var models = List.of("Model S", "Model 3", "Model X");
+
+        when(searchModelsUseCase.execute()).thenReturn(models);
+
+        final var result = carController.searchModels();
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().data().getFirst().toLowerCase()).isEqualTo("Model S".toLowerCase());
+    }
+
+    @Test
+    void shouldReturnModelsByManufacturerWithSuccess() {
+        final var manufacturer = "Toyota";
+
+        when(searchModelsUseCase.executeByManufacturer(manufacturer)).thenReturn(List.of("Corolla", "Camry", "RAV4"));
+
+        final var result = carController.searchModelsByManufacturer(manufacturer);
+
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(result.getBody()).isNotNull();
+        assertThat(result.getBody().data()).isNotNull();
+        assertThat(result.getBody().data().getFirst().toLowerCase()).isEqualTo("Corolla".toLowerCase());
+    }
+
 }

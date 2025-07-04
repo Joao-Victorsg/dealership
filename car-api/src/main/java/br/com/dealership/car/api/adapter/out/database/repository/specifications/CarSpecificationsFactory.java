@@ -29,4 +29,9 @@ public class CarSpecificationsFactory {
         return (root, query, builder) ->
                 manufacturer == null ? builder.conjunction() : builder.equal(builder.lower(root.get("manufacturer")),manufacturer.toLowerCase());
     }
+
+    public static Specification<CarEntity> equalColor(final String color){
+        return (root, query, builder) ->
+                color == null ? builder.conjunction() : builder.equal(builder.lower(root.get("color")),color.toLowerCase());
+    }
 }

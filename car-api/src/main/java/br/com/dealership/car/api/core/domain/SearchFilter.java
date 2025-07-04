@@ -10,6 +10,7 @@ public record SearchFilter(
         BigDecimal finalValue,
         String modelYear,
         String model,
-        String manufacturer
+        String manufacturer,
+        String color
 ){
 }

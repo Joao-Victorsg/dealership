@@ -89,4 +89,19 @@ class CarSpecificationsFactoryTest {
         assertNotNull(predicate);
         assertEquals(expectedPredicate,predicate);
     }
+
+    @Test
+    void shouldReturnEqualColor(){
+        final var color = "black";
+        final var expectedPredicate = mock(Predicate.class);
+
+        when(criteriaBuilder.equal(root.get("color"),color)).thenReturn(expectedPredicate);
+
+        final var specification = CarSpecificationsFactory.equalColor(color);
+
+        final var predicate = specification.toPredicate(root,query,criteriaBuilder);
+
+        assertNotNull(predicate);
+        assertEquals(expectedPredicate,predicate);
+    }
 }

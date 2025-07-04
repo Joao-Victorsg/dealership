@@ -17,13 +17,15 @@ class SearchFilterMapperTest {
         final var model = "Cruze";
         final var modelYear = "1998";
         final var manufacturer = "GM";
+        final var color = "Black";
 
-        final var resultado = searchFilterMapper.toSearchFilter(initialValue,finalValue,model,modelYear,manufacturer);
+        final var resultado = searchFilterMapper.toSearchFilter(initialValue,finalValue,model,modelYear,manufacturer,color);
 
         assertEquals(initialValue,resultado.initialValue());
         assertEquals(finalValue,resultado.finalValue());
         assertEquals(model,resultado.model());
         assertEquals(modelYear,resultado.modelYear());
         assertEquals(manufacturer,resultado.manufacturer());
+        assertEquals(color,resultado.color());
     }
 }

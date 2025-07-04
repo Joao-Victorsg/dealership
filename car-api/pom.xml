@@ -237,6 +237,9 @@
 				<version>${maven-pmd-plugin.version}</version>
 				<configuration>
 					<printFailingErrors>true</printFailingErrors>
+					<rulesets>
+						<ruleset>pmd-ruleset.xml</ruleset>
+					</rulesets>
 				</configuration>
 				<executions>
 					<execution>
@@ -289,7 +292,7 @@
 						<avoidCallsTo>org.apache.commons.logging</avoidCallsTo>
 					</avoidCallsTo>
 					<targetClasses>
-						<targetClass>**.adapter.in.controller.CarController.*</targetClass>
+						<targetClass>**.adapter.in.**</targetClass>
 						<targetClass>**.adapter.mapper.**</targetClass>
 						<targetClass>**.adapter.out.database.repository.specifications.**</targetClass>
 						<targetClass>**.adapter.out.database.service.**</targetClass>
