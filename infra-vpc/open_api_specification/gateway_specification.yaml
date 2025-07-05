@@ -43,12 +43,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: A paginated list of clients.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedClientResponse'
+                $ref: "#/components/schemas/PaginatedClientResponse"
     post:
       summary: Create Client
       description: Create a new client in the system.
@@ -57,15 +57,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClientRequest'
+              $ref: "#/components/schemas/ClientRequest"
       responses:
-        '201':
+        "201":
           description: Client created successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientResponse'
-        '409':
+                $ref: "#/components/schemas/ClientResponse"
+        "409":
           description: A client with the given CPF already exists.
   /clients/{cpf}:
     get:
@@ -79,13 +79,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Client details retrieved successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientResponse'
-        '404':
+                $ref: "#/components/schemas/ClientResponse"
+        "404":
           description: Client not found.
     put:
       summary: Update Client
@@ -102,15 +102,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClientUpdateRequest'
+              $ref: "#/components/schemas/ClientUpdateRequest"
       responses:
-        '200':
+        "200":
           description: Client updated successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClientResponse'
-        '404':
+                $ref: "#/components/schemas/ClientResponse"
+        "404":
           description: Client not found.
     delete:
       summary: Delete Client
@@ -123,9 +123,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Client deleted successfully.
-        '404':
+        "404":
           description: Client not found.
   /cars:
     post:
@@ -136,21 +136,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CarDtoRequest'
+              $ref: "#/components/schemas/CarDtoRequest"
       responses:
         "201":
           description: The car was created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCarDtoResponse'
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "408": { $ref: '#/components/responses/RequestTimeout' }
-        "409": { $ref: '#/components/responses/Conflict' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
-        "502": { $ref: '#/components/responses/BadGateway' }
-        "503": { $ref: '#/components/responses/ServiceUnavailable' }
-        "504": { $ref: '#/components/responses/GatewayTimeout' }
+                $ref: "#/components/schemas/ResponseCarDtoResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "408": { $ref: "#/components/responses/RequestTimeout" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "502": { $ref: "#/components/responses/BadGateway" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "504": { $ref: "#/components/responses/GatewayTimeout" }
     get:
       summary: Return a page of cars
       operationId: searchAllCars
@@ -175,18 +175,22 @@ paths:
           in: query
           schema:
             type: string
+        - name: color
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Return a list of cars
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponsePageCarDtoResponse'
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "408": { $ref: '#/components/responses/RequestTimeout' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
-        "503": { $ref: '#/components/responses/ServiceUnavailable' }
-        "504": { $ref: '#/components/responses/GatewayTimeout' }
+                $ref: "#/components/schemas/ResponsePageCarDtoResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "408": { $ref: "#/components/responses/RequestTimeout" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "504": { $ref: "#/components/responses/GatewayTimeout" }
   /cars/{vin}:
     get:
       summary: Return one car
@@ -203,13 +207,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCarDtoResponse'
-        "400": { $ref: '#/components/responses/BadRequest' }
-        "404": { $ref: '#/components/responses/NotFound' }
-        "408": { $ref: '#/components/responses/RequestTimeout' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
-        "503": { $ref: '#/components/responses/ServiceUnavailable' }
-        "504": { $ref: '#/components/responses/GatewayTimeout' }
+                $ref: "#/components/schemas/ResponseCarDtoResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "408": { $ref: "#/components/responses/RequestTimeout" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "504": { $ref: "#/components/responses/GatewayTimeout" }
     put:
       summary: Update a car's color or value
       operationId: updateCar
@@ -218,19 +222,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CarDtoUpdateRequest'
+              $ref: "#/components/schemas/CarDtoUpdateRequest"
       responses:
         "200":
           description: The car was updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseCarDtoResponse'
-        "404": { $ref: '#/components/responses/NotFound' }
-        "408": { $ref: '#/components/responses/RequestTimeout' }
-        "502": { $ref: '#/components/responses/BadGateway' }
-        "503": { $ref: '#/components/responses/ServiceUnavailable' }
-        "504": { $ref: '#/components/responses/GatewayTimeout' }
+                $ref: "#/components/schemas/ResponseCarDtoResponse"
+        "404": { $ref: "#/components/responses/NotFound" }
+        "408": { $ref: "#/components/responses/RequestTimeout" }
+        "502": { $ref: "#/components/responses/BadGateway" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "504": { $ref: "#/components/responses/GatewayTimeout" }
     delete:
       summary: Delete a car by VIN
       operationId: deleteCar
@@ -240,13 +244,59 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseString'
-        "404": { $ref: '#/components/responses/NotFound' }
-        "408": { $ref: '#/components/responses/RequestTimeout' }
-        "500": { $ref: '#/components/responses/InternalServerError' }
-        "502": { $ref: '#/components/responses/BadGateway' }
-        "503": { $ref: '#/components/responses/ServiceUnavailable' }
-        "504": { $ref: '#/components/responses/GatewayTimeout' }
+                $ref: "#/components/schemas/ResponseString"
+        "404": { $ref: "#/components/responses/NotFound" }
+        "408": { $ref: "#/components/responses/RequestTimeout" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "502": { $ref: "#/components/responses/BadGateway" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+        "504": { $ref: "#/components/responses/GatewayTimeout" }
+  /cars/manufacturers:
+    get:
+      summary: Return all distinct manufacturers
+      operationId: searchManufacturers
+      responses:
+        "200":
+          description: Return a list of distinct manufacturers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseListString"
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+  /cars/models:
+    get:
+      summary: Return all distinct models
+      operationId: searchModels
+      responses:
+        "200":
+          description: Return a list of distinct models
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseListString"
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
+  /cars/models/{manufacturer}:
+    get:
+      summary: Return models for a specific manufacturer
+      operationId: searchModelsByManufacturer
+      parameters:
+        - name: manufacturer
+          in: path
+          required: true
+          description: Manufacturer name to get models for
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Return a list of models for the manufacturer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseListString"
+        "500": { $ref: "#/components/responses/InternalServerError" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
   /sales:
     post:
       summary: Create a sale
@@ -258,27 +308,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SalesDtoRequest'
+              $ref: "#/components/schemas/SalesDtoRequest"
       responses:
-        '201':
+        "201":
           description: The sale was created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseSalesDtoResponse'
-        '400':
+                $ref: "#/components/schemas/ResponseSalesDtoResponse"
+        "400":
           description: The server cannot process the request due to a client error
-        '408':
+        "408":
           description: The request timed out
-        '409':
+        "409":
           description: There was a conflict when creating the sale
-        '500':
+        "500":
           description: There was an internal server error
-        '502':
+        "502":
           description: Bad Gateway, the server got an invalid response
-        '503':
+        "503":
           description: The service is unavailable
-        '504':
+        "504":
           description: The Gateway timed out
     get:
       summary: Return a page of sales
@@ -322,21 +372,21 @@ paths:
             type: string
             example: id,asc
       responses:
-        '200':
+        "200":
           description: Return a list of sales
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponsePageSalesDtoResponse'
-        '400':
+                $ref: "#/components/schemas/ResponsePageSalesDtoResponse"
+        "400":
           description: The server cannot process the request due to a client error
-        '408':
+        "408":
           description: The request timed out
-        '500':
+        "500":
           description: There was an internal server error
-        '503':
+        "503":
           description: The service is unavailable
-        '504':
+        "504":
           description: The Gateway timed out
   /sales/{id}:
     get:
@@ -352,23 +402,23 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: The sale was returned successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseSalesDtoResponse'
-        '400':
+                $ref: "#/components/schemas/ResponseSalesDtoResponse"
+        "400":
           description: The server cannot process the request due to a client error
-        '404':
+        "404":
           description: There wasn't a sale with the ID that was informed
-        '408':
+        "408":
           description: The request timed out
-        '500':
+        "500":
           description: There was an internal server error
-        '503':
+        "503":
           description: The service is unavailable
-        '504':
+        "504":
           description: The Gateway timed out
     delete:
       summary: Delete a sale passing the ID
@@ -383,23 +433,23 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: The sale was deleted successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResponseString'
-        '404':
+                $ref: "#/components/schemas/ResponseString"
+        "404":
           description: There wasn't a sale with the ID that was informed
-        '408':
+        "408":
           description: The request timed out
-        '500':
+        "500":
           description: There was an internal server error
-        '502':
+        "502":
           description: Bad Gateway, the server got an invalid response
-        '503':
+        "503":
           description: The service is unavailable
-        '504':
+        "504":
           description: The Gateway timed out
 components:
   schemas:
@@ -413,7 +463,7 @@ components:
           type: string
           description: CPF (unique identifier) of the client.
         address:
-          $ref: '#/components/schemas/Address'
+          $ref: "#/components/schemas/Address"
       required:
         - name
         - cpf
@@ -439,14 +489,14 @@ components:
           type: string
           description: CPF (unique identifier) of the client.
         address:
-          $ref: '#/components/schemas/Address'
+          $ref: "#/components/schemas/Address"
     PaginatedClientResponse:
       type: object
       properties:
         content:
           type: array
           items:
-            $ref: '#/components/schemas/ClientResponse'
+            $ref: "#/components/schemas/ClientResponse"
         pageable:
           type: object
           description: Pageable metadata.
@@ -495,24 +545,31 @@ components:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/CarDtoResponse'
+          $ref: "#/components/schemas/CarDtoResponse"
     ResponsePageCarDtoResponse:
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/CarDtoResponse'
+            $ref: "#/components/schemas/CarDtoResponse"
     ResponseString:
       type: object
       properties:
         data:
           type: string
+    ResponseListString:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
     ResponseSalesDtoResponse:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/SalesDtoResponse'
+          $ref: "#/components/schemas/SalesDtoResponse"
     ResponsePageSalesDtoResponse:
       type: object
       properties:
@@ -522,7 +579,7 @@ components:
             content:
               type: array
               items:
-                $ref: '#/components/schemas/SalesDtoResponse'
+                $ref: "#/components/schemas/SalesDtoResponse"
             totalElements:
               type: integer
             totalPages:
