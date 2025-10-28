@@ -11,6 +11,8 @@ paths:
     get:
       summary: Get All Clients
       description: Retrieve a paginated list of all clients, optionally filtered by city and state.
+      tags:
+        - Clients
       parameters:
         - name: city
           in: query
@@ -52,6 +54,8 @@ paths:
     post:
       summary: Create Client
       description: Create a new client in the system.
+      tags:
+        - Clients
       requestBody:
         required: true
         content:
@@ -71,6 +75,8 @@ paths:
     get:
       summary: Get Client by CPF
       description: Retrieve a single client by their CPF.
+      tags:
+        - Clients
       parameters:
         - name: cpf
           in: path
@@ -90,6 +96,8 @@ paths:
     put:
       summary: Update Client
       description: Update the name or address of a client by their CPF.
+      tags:
+        - Clients
       parameters:
         - name: cpf
           in: path
@@ -115,6 +123,8 @@ paths:
     delete:
       summary: Delete Client
       description: Delete a client by their CPF.
+      tags:
+        - Clients
       parameters:
         - name: cpf
           in: path
@@ -131,6 +141,8 @@ paths:
     post:
       summary: Save a car in the database
       operationId: createCar
+      tags:
+        - Cars
       requestBody:
         required: true
         content:
@@ -154,6 +166,8 @@ paths:
     get:
       summary: Return a page of cars
       operationId: searchAllCars
+      tags:
+        - Cars
       parameters:
         - name: initialValue
           in: query
@@ -195,6 +209,8 @@ paths:
     get:
       summary: Return one car
       operationId: searchCarByVin
+      tags:
+        - Cars
       parameters:
         - name: vin
           in: path
@@ -217,6 +233,8 @@ paths:
     put:
       summary: Update a car's color or value
       operationId: updateCar
+      tags:
+        - Cars
       requestBody:
         required: true
         content:
@@ -238,6 +256,8 @@ paths:
     delete:
       summary: Delete a car by VIN
       operationId: deleteCar
+      tags:
+        - Cars
       responses:
         "200":
           description: The car was deleted successfully
@@ -255,6 +275,8 @@ paths:
     get:
       summary: Return all distinct manufacturers
       operationId: searchManufacturers
+      tags:
+        - Cars
       responses:
         "200":
           description: Return a list of distinct manufacturers
@@ -268,6 +290,8 @@ paths:
     get:
       summary: Return all distinct models
       operationId: searchModels
+      tags:
+        - Cars
       responses:
         "200":
           description: Return a list of distinct models
@@ -281,6 +305,8 @@ paths:
     get:
       summary: Return models for a specific manufacturer
       operationId: searchModelsByManufacturer
+      tags:
+        - Cars
       parameters:
         - name: manufacturer
           in: path

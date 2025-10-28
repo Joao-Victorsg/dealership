@@ -130,6 +130,7 @@ INFRA_DIRS=(
     "../infra-sqs"
     "../infra-sns"
     "../infra-ses"
+    "../infra-ecs-keycloak"
     "../lambda-client-car-creation-event-processor/infra"
     "../lambda-fetch-car-info/infra"
     "../lambda-fetch-client-info/infra"
@@ -149,6 +150,22 @@ for dir in "${INFRA_DIRS[@]}"; do
         continue
     fi
 done
+
+# Setup Keycloak realm and configuration after ECS deployment
+echo "🔐 Configurando Keycloak realm e configurações..."
+cd "$BASE_DIR" || exit 1
+if [ -f "./setup-keycloak-ecs.sh" ]; then
+    chmod +x ./setup-keycloak-ecs.sh
+    if ! ./setup-keycloak-ecs.sh; then
+        ERROR_MESSAGES+=("❌ Falha ao configurar Keycloak realm")
+        ((ERRORS++))
+    else
+        echo "✅ Keycloak realm configurado com sucesso"
+    fi
+else
+    echo "⚠️ setup-keycloak-ecs.sh não encontrado, pulando configuração do Keycloak"
+fi
+echo "-------------------------------------------"
 
 # Relatório final
 echo "-------------------------------------------"
