@@ -14,12 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,10 +39,12 @@ class CreateClientUseCaseTest {
     private CreateClientUseCase createClientUseCase;
 
     @Test
-    void shouldExecuteWithSuccess() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
+    void shouldExecuteWithSuccess() {
         final var addressModel = Instancio.create(AddressModel.class);
         final var clientModel = Instancio.create(ClientModel.class);
 
+        when(clientServicePort.findByCpf(clientModel.cpf())).thenReturn(Optional.empty());
+        when(clientServicePort.existsByEmail(clientModel.email())).thenReturn(false);
         when(addressServicePort.search(clientModel.clientAddress())).thenReturn(addressModel);
         when(clientServicePort.create(any(ClientModel.class))).thenReturn(clientModel);
         doNothing().when(sendCreationEventPort).sendCreationEvent(clientModel.cpf());
@@ -52,24 +55,21 @@ class CreateClientUseCaseTest {
     }
 
     @Test
-    void shouldThrowClientAlreadyExistsException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
-        final var addressModel = Instancio.create(AddressModel.class);
+    void shouldThrowClientAlreadyExistsException() {
         final var clientModel = Instancio.create(ClientModel.class);
 
-        when(addressServicePort.search(clientModel.clientAddress())).thenReturn(addressModel);
-        doThrow(ClientAlreadyExistsException.class).when(clientServicePort).create(any(ClientModel.class));
+        when(clientServicePort.findByCpf(clientModel.cpf())).thenReturn(Optional.of(clientModel));
 
-        assertThrows(ClientAlreadyExistsException.class,() -> createClientUseCase.execute(clientModel));
+        assertThrows(ClientAlreadyExistsException.class, () -> createClientUseCase.execute(clientModel));
     }
 
     @Test
-    void shouldThrowEmailAlreadyInUseException() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
-        final var addressModel = Instancio.create(AddressModel.class);
+    void shouldThrowEmailAlreadyInUseException() {
         final var clientModel = Instancio.create(ClientModel.class);
 
-        when(addressServicePort.search(clientModel.clientAddress())).thenReturn(addressModel);
-        doThrow(EmailAlreadyInUseException.class).when(clientServicePort).create(any(ClientModel.class));
+        when(clientServicePort.findByCpf(clientModel.cpf())).thenReturn(Optional.empty());
+        when(clientServicePort.existsByEmail(clientModel.email())).thenReturn(true);
 
-        assertThrows(EmailAlreadyInUseException.class,() -> createClientUseCase.execute(clientModel));
+        assertThrows(EmailAlreadyInUseException.class, () -> createClientUseCase.execute(clientModel));
     }
 }

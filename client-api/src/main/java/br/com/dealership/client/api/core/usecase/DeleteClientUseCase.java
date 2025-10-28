@@ -12,6 +12,9 @@ public class DeleteClientUseCase {
     private final ClientServicePort clientServicePort;
 
     public void execute(String cpf) throws ClientNotFoundException {
+        clientServicePort.findByCpf(cpf)
+                .orElseThrow(() -> new ClientNotFoundException("A client with this CPF was not found"));
+
         clientServicePort.delete(cpf);
     }
 }

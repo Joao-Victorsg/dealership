@@ -6,9 +6,6 @@ import br.com.dealership.client.api.adapter.out.database.entity.ClientEntity;
 import br.com.dealership.client.api.adapter.out.database.repository.ClientRepository;
 import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
-import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
-import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
-import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,11 +20,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,7 +41,7 @@ class ClientServiceTest {
     private ClientService clientService;
 
     @Test
-    void shouldFindByCpf() throws ClientNotFoundException {
+    void shouldFindByCpf() {
         final var cpf = "12345678900";
         final var clientEntity = ClientEntity.builder().cpf(cpf).build();
         final var clientModel = ClientModel.builder().cpf(cpf).build();
@@ -56,16 +51,18 @@ class ClientServiceTest {
 
         final var result = clientService.findByCpf(cpf);
 
-        assertEquals(clientModel, result);
+        assertEquals(Optional.of(clientModel), result);
     }
 
     @Test
-    void shouldThrowExceptionWhenCpfNotFound() {
+    void shouldReturnEmptyWhenCpfNotFound() {
         final var cpf = "12345678900";
 
         when(clientRepository.findByCpf(cpf)).thenReturn(Optional.empty());
 
-        assertThrows(ClientNotFoundException.class, () -> clientService.findByCpf(cpf));
+        final var result = clientService.findByCpf(cpf);
+
+        assertEquals(Optional.empty(), result);
         verify(clientRepository).findByCpf(cpf);
     }
 
@@ -86,11 +83,10 @@ class ClientServiceTest {
     }
 
     @Test
-    void shouldCreateNewClient() throws ClientAlreadyExistsException, EmailAlreadyInUseException {
+    void shouldCreateNewClient() {
         final var clientModel = ClientModel.builder().cpf("12345678900").build();
         final var clientEntity = ClientEntity.builder().cpf("12345678900").build();
 
-        when(clientRepository.findByCpf(clientModel.cpf())).thenReturn(Optional.empty());
         when(clientMapper.toEntity(clientModel)).thenReturn(clientEntity);
         when(clientRepository.save(clientEntity)).thenReturn(clientEntity);
         when(clientMapper.toModel(clientEntity)).thenReturn(clientModel);
@@ -101,52 +97,27 @@ class ClientServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenSavingExistingClient() {
-        final var clientModel = ClientModel.builder().cpf("12345678900").build();
-        final var clientEntity = ClientEntity.builder().cpf("12345678900").build();
+    void shouldCheckIfEmailExists() {
+        final var email = "email@email.com";
 
-        when(clientRepository.findByCpf(clientModel.cpf())).thenReturn(Optional.of(clientEntity));
+        when(clientRepository.existsByEmail(email)).thenReturn(true);
 
-        assertThrows(ClientAlreadyExistsException.class, () -> clientService.create(clientModel));
+        final var result = clientService.existsByEmail(email);
 
-        verifyNoMoreInteractions(clientRepository, clientMapper);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenSavingClientWithEmailAlreadyInUse() {
-        final var clientModel = ClientModel.builder().cpf("12345678900").email("email@email.com").build();
-        final var clientEntity = ClientEntity.builder().cpf("12345678900").email("email@email.com").build();
-
-        when(clientRepository.findByCpf(clientModel.cpf())).thenReturn(Optional.empty());
-        when(clientRepository.findByEmail(clientModel.email())).thenReturn(Optional.of(clientEntity));
-
-        assertThrows(EmailAlreadyInUseException.class, () -> clientService.create(clientModel));
-
-        verifyNoMoreInteractions(clientRepository, clientMapper);
+        assertEquals(true, result);
+        verify(clientRepository).existsByEmail(email);
     }
 
     @Test
     void shouldDeleteClientByCpf(){
         final var cpf = "12345678900";
-        final var clientEntity = ClientEntity.builder().cpf(cpf).build();
-
-        when(clientRepository.findByCpf(cpf)).thenReturn(Optional.of(clientEntity));
 
         assertDoesNotThrow(() -> clientService.delete(cpf));
         verify(clientRepository).deleteByCpf(cpf);
     }
 
     @Test
-    void shouldThrowExceptionWhenDeletingNonexistentClient() {
-        final var cpf = "12345678900";
-
-        when(clientRepository.findByCpf(cpf)).thenReturn(Optional.empty());
-
-        assertThrows(ClientNotFoundException.class, () -> clientService.delete(cpf));
-    }
-
-    @Test
-    void shouldUpdateClientAddress() throws ClientNotFoundException {
+    void shouldUpdateClientAddress() {
         final var cpf = "12345678900";
         final var addressModel = AddressModel.builder().postCode("12345").build();
         final var clientEntity = ClientEntity.builder().cpf(cpf).build();
@@ -164,13 +135,14 @@ class ClientServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdatingNonexistentClient() {
-        final var cpf = "12345678900";
-        final var addressModel = AddressModel.builder().build();
+    void shouldReturnFalseWhenEmailDoesNotExist() {
+        final var email = "notfound@email.com";
 
-        when(clientRepository.findByCpf(cpf)).thenReturn(Optional.empty());
+        when(clientRepository.existsByEmail(email)).thenReturn(false);
 
-        assertThrows(ClientNotFoundException.class, () -> clientService.update(cpf, addressModel));
-        verify(clientRepository).findByCpf(cpf);
+        final var result = clientService.existsByEmail(email);
+
+        assertEquals(false, result);
+        verify(clientRepository).existsByEmail(email);
     }
 }

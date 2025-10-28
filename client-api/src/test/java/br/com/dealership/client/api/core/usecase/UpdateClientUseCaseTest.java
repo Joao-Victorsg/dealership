@@ -12,10 +12,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,26 +32,27 @@ class UpdateClientUseCaseTest {
     private UpdateClientUseCase updateClientUseCase;
 
     @Test
-    void shouldUpdateClient() throws ClientNotFoundException {
+    void shouldUpdateClient() {
         final var cpf = "123";
         final var addressModel = Instancio.create(AddressModel.class);
+        final var clientModel = Instancio.create(ClientModel.class);
 
+        when(clientServicePort.findByCpf(cpf)).thenReturn(Optional.of(clientModel));
         when(addressServicePort.search(addressModel)).thenReturn(addressModel);
-        when(clientServicePort.update(cpf,addressModel)).thenReturn(Instancio.create(ClientModel.class));
+        when(clientServicePort.update(cpf, addressModel)).thenReturn(clientModel);
 
-        final var clientModel = assertDoesNotThrow(() -> updateClientUseCase.execute(cpf,addressModel));
+        final var result = assertDoesNotThrow(() -> updateClientUseCase.execute(cpf, addressModel));
 
-        assertNotNull(clientModel);
+        assertNotNull(result);
     }
 
     @Test
-    void shouldThrowClietNotFoundException() throws ClientNotFoundException {
+    void shouldThrowClientNotFoundException() {
         final var cpf = "123";
         final var addressModel = Instancio.create(AddressModel.class);
 
-        when(addressServicePort.search(addressModel)).thenReturn(addressModel);
-        doThrow(ClientNotFoundException.class).when(clientServicePort).update(cpf,addressModel);
+        when(clientServicePort.findByCpf(cpf)).thenReturn(Optional.empty());
 
-        assertThrows(ClientNotFoundException.class, () -> updateClientUseCase.execute(cpf,addressModel));
+        assertThrows(ClientNotFoundException.class, () -> updateClientUseCase.execute(cpf, addressModel));
     }
 }

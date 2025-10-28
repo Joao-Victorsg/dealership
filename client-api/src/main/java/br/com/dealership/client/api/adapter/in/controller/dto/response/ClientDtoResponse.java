@@ -14,5 +14,6 @@ public record ClientDtoResponse(
     @NotBlank @Size(min = 11,max = 11) String cpf,
     @NotNull AddressDtoResponse address,
     @NotNull LocalDateTime registrationDate,
-    @NotNull String email
+    @NotNull String email,
+    @NotBlank String phoneNumber
 ){}

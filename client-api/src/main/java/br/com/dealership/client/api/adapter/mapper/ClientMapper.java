@@ -24,6 +24,8 @@ public class ClientMapper {
                 .name(clientRequest.name())
                 .clientAddress(addressModel)
                 .email(clientRequest.email())
+                .phoneNumber(clientRequest.phoneNumber())
+                .password(clientRequest.password())
                 .build();
     }
 
@@ -36,6 +38,7 @@ public class ClientMapper {
                 .name(clientEntity.getName())
                 .clientAddress(addressModel)
                 .email(clientEntity.getEmail())
+                .phoneNumber(clientEntity.getPhoneNumber())
                 .registrationDate(clientEntity.getRegistrationDate())
                 .build();
     }
@@ -45,15 +48,16 @@ public class ClientMapper {
 
         return ClientEntity.builder()
                 .cpf(clientModel.cpf())
+                .keycloakUserId(clientModel.keycloakId())
                 .name(clientModel.name())
                 .address(addressEntity)
                 .email(clientModel.email())
                 .registrationDate(LocalDateTime.now())
+                .phoneNumber(clientModel.phoneNumber())
                 .build();
     }
 
     public ClientDtoResponse toDtoResponse(ClientModel clientModel){
-
         final var addressDtoResponse = addressMapper.toDtoResponse(clientModel.clientAddress());
 
         return ClientDtoResponse.builder()
@@ -62,6 +66,7 @@ public class ClientMapper {
                 .registrationDate(clientModel.registrationDate())
                 .address(addressDtoResponse)
                 .email(clientModel.email())
+                .phoneNumber(clientModel.phoneNumber())
                 .build();
     }
 }

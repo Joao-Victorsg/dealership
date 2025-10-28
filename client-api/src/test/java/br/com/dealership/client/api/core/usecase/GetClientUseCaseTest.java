@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,10 +30,10 @@ class GetClientUseCaseTest {
     private GetClientUseCase getClientUseCase;
 
     @Test
-    void shouldReturnClientModelWhenCpfExists() throws ClientNotFoundException {
+    void shouldReturnClientModelWhenCpfExists() {
         final String cpf = "12345678900";
         final ClientModel clientModel = Instancio.create(ClientModel.class);
-        when(clientServicePort.findByCpf(cpf)).thenReturn(clientModel);
+        when(clientServicePort.findByCpf(cpf)).thenReturn(Optional.of(clientModel));
 
         final var response = assertDoesNotThrow(() -> getClientUseCase.execute(cpf));
 
@@ -41,9 +42,9 @@ class GetClientUseCaseTest {
     }
 
     @Test
-    void shouldThrowClientNotFoundExceptionWhenCpfDoesNotExist() throws ClientNotFoundException {
+    void shouldThrowClientNotFoundExceptionWhenCpfDoesNotExist() {
         final String cpf = "12345678900";
-        when(clientServicePort.findByCpf(cpf)).thenThrow(ClientNotFoundException.class);
+        when(clientServicePort.findByCpf(cpf)).thenReturn(Optional.empty());
 
         assertThrows(ClientNotFoundException.class, () -> getClientUseCase.execute(cpf));
     }

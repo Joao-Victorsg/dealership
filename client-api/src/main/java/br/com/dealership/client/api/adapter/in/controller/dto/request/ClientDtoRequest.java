@@ -13,6 +13,8 @@ public record ClientDtoRequest(
         @NotBlank @JsonProperty String name,
         @NotBlank @JsonProperty String cpf,
         @NotNull @JsonProperty AddressDtoRequest address,
-        @NotBlank @JsonProperty @Email String email
+        @NotBlank @JsonProperty @Email String email,
+        @NotBlank @JsonProperty String password,
+        @NotBlank @JsonProperty String phoneNumber
 ){
 }

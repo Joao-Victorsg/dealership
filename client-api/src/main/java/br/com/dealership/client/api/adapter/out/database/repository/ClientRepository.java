@@ -12,7 +12,7 @@ public interface ClientRepository extends JpaRepository<ClientEntity, String>, J
 
     Optional<ClientEntity> findByCpf(String cpf);
 
-    Optional<ClientEntity> findByEmail(String email);
+    boolean existsByEmail(String email);
 
     void deleteByCpf(String cpf);
 }

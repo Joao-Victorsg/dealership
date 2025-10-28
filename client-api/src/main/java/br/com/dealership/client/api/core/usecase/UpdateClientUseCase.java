@@ -16,8 +16,11 @@ public class UpdateClientUseCase {
     private final AddressServicePort addressServicePort;
 
     public ClientModel execute(String cpf, AddressModel addressModel) throws ClientNotFoundException {
+        clientServicePort.findByCpf(cpf)
+                .orElseThrow(() -> new ClientNotFoundException("A client with this CPF was not found"));
+
         final var searchedAddress = addressServicePort.search(addressModel);
 
-        return clientServicePort.update(cpf,searchedAddress);
+        return clientServicePort.update(cpf, searchedAddress);
     }
 }

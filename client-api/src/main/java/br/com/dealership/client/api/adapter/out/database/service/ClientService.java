@@ -5,9 +5,6 @@ import br.com.dealership.client.api.adapter.mapper.ClientMapper;
 import br.com.dealership.client.api.adapter.out.database.repository.ClientRepository;
 import br.com.dealership.client.api.core.domain.AddressModel;
 import br.com.dealership.client.api.core.domain.ClientModel;
-import br.com.dealership.client.api.core.exceptions.ClientAlreadyExistsException;
-import br.com.dealership.client.api.core.exceptions.ClientNotFoundException;
-import br.com.dealership.client.api.core.exceptions.EmailAlreadyInUseException;
 import br.com.dealership.client.api.core.usecase.port.ClientServicePort;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +13,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static br.com.dealership.client.api.adapter.out.database.repository.specification.ClientSpecificationsFactory.hasCity;
 import static br.com.dealership.client.api.adapter.out.database.repository.specification.ClientSpecificationsFactory.hasState;
@@ -29,11 +28,14 @@ public class ClientService implements ClientServicePort {
     private final AddressMapper addressMapper;
 
     @Override
-    public ClientModel findByCpf(String cpf) throws ClientNotFoundException {
-        final var clientEntity = clientRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ClientNotFoundException("There isn't a client with this CPF"));
+    public Optional<ClientModel> findByCpf(String cpf){
+        return clientRepository.findByCpf(cpf)
+                .map(clientMapper::toModel);
+    }
 
-        return clientMapper.toModel(clientEntity);
+    @Override
+    public boolean existsByEmail(String email) {
+        return clientRepository.existsByEmail(email);
     }
 
     @Override
@@ -50,15 +52,8 @@ public class ClientService implements ClientServicePort {
         return new PageImpl<>(clientsModel,clientsEntities.getPageable(),clientsModel.size());
     }
 
-
     @Override
-    public ClientModel create(final ClientModel clientModel) throws ClientAlreadyExistsException, EmailAlreadyInUseException {
-        if(clientRepository.findByCpf(clientModel.cpf()).isPresent())
-            throw new ClientAlreadyExistsException("A client with this CPF already exists");
-
-        if(clientRepository.findByEmail(clientModel.email()).isPresent())
-            throw new EmailAlreadyInUseException("This email is already in use");
-
+    public ClientModel create(final ClientModel clientModel){
         final var entity = clientMapper.toEntity(clientModel);
 
         final var savedEntity = clientRepository.save(entity);
@@ -68,18 +63,14 @@ public class ClientService implements ClientServicePort {
 
     @Transactional
     @Override
-    public void delete(final String cpf) throws ClientNotFoundException {
-        clientRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ClientNotFoundException("A client with this CPF was not found"));
-
+    public void delete(final String cpf) {
         clientRepository.deleteByCpf(cpf);
     }
 
     @Transactional
     @Override
-    public ClientModel update(String cpf, AddressModel newAddressModel) throws ClientNotFoundException {
-        final var client = clientRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ClientNotFoundException("A client with this CPF was not found"));
+    public ClientModel update(String cpf, AddressModel newAddressModel) {
+        final var client = clientRepository.findByCpf(cpf).orElseThrow();
 
         final var newAddressEntity = addressMapper.toEntity(newAddressModel);
 

@@ -27,6 +27,9 @@ public class ClientEntity {
     @Column(nullable = false, unique = true,length = 11)
     private String cpf;
 
+    @Column(nullable = false, unique = true)
+    private String keycloakUserId;
+
     @Column(nullable = false)
     @Size(max = 255)
     private String name;
@@ -34,6 +37,9 @@ public class ClientEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", unique = true)
     private AddressEntity address;
+
+    @Column(nullable = false)
+    private String phoneNumber;
 
     @Column(nullable = false, unique = true)
     private String email;

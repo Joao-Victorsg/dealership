@@ -15,7 +15,8 @@ public class GetClientUseCase {
     private final ClientServicePort clientServicePort;
 
     public ClientModel execute(String cpf) throws ClientNotFoundException {
-        return clientServicePort.findByCpf(cpf);
+        return clientServicePort.findByCpf(cpf)
+                .orElseThrow(() -> new ClientNotFoundException("There isn't a client with this CPF"));
     }
 
     public Page<ClientModel> execute(Pageable pageable, String city, String state) {
