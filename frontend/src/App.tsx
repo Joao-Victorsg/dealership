@@ -25,6 +25,10 @@ import ClientCarList from './pages/client/ClientCarList';
 import ClientHome from './pages/client/ClientHome';
 import PurchaseFlow from './pages/client/PurchaseFlow';
 
+// Public Components
+import PublicLayout from './components/PublicLayout';
+import PublicCarList from './pages/PublicCarList';
+
 // Create a theme instance
 const theme = createTheme({
   palette: {
@@ -120,9 +124,17 @@ const App: React.FC = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/password-reset" element={<PasswordReset />} />
 
-              {/* Protected Client Routes */}
+              {/* Public Home Route - Car List without authentication */}
               <Route 
                 path="/" 
+                element={
+                  <PublicLayout><PublicCarList /></PublicLayout>
+                } 
+              />
+
+              {/* Protected Client Routes */}
+              <Route 
+                path="/client/home" 
                 element={
                   <ProtectedRoute>
                     <ClientLayout><ClientHome /></ClientLayout>
@@ -130,7 +142,7 @@ const App: React.FC = () => {
                 } 
               />
               <Route 
-                path="/cars" 
+                path="/client/cars" 
                 element={
                   <ProtectedRoute>
                     <ClientLayout><ClientCarList /></ClientLayout>

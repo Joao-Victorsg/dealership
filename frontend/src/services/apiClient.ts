@@ -33,7 +33,7 @@ const processQueue = (error: any = null) => {
 /**
  * Create API client instance
  */
-const createApiClient = (baseURL?: string): AxiosInstance => {
+const createApiClient = (baseURL?: string, requireAuth: boolean = true): AxiosInstance => {
   const client = axios.create({
     baseURL,
     headers: {
@@ -44,10 +44,12 @@ const createApiClient = (baseURL?: string): AxiosInstance => {
   // Request interceptor - Add auth token
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = tokenStorage.getAccessToken();
-      
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      if (requireAuth) {
+        const token = tokenStorage.getAccessToken();
+        
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
 
       return config;
@@ -65,8 +67,8 @@ const createApiClient = (baseURL?: string): AxiosInstance => {
     async (error: AxiosError) => {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-      // If error is 401 and we haven't retried yet
-      if (error.response?.status === 401 && !originalRequest._retry) {
+      // If error is 401 and we haven't retried yet, and auth is required
+      if (requireAuth && error.response?.status === 401 && !originalRequest._retry) {
         if (isRefreshing) {
           // If already refreshing, queue this request
           return new Promise((resolve, reject) => {
@@ -126,15 +128,24 @@ const createApiClient = (baseURL?: string): AxiosInstance => {
 
 // Create default API clients for each service
 export const carApiClient = createApiClient(
-  process.env.REACT_APP_CAR_API_URL || 'http://localhost:8087/v1/dealership'
+  process.env.REACT_APP_CAR_API_URL || 'http://localhost:8087/v1/dealership',
+  true // Requires authentication
+);
+
+// Public car API client (no authentication required for reading)
+export const publicCarApiClient = createApiClient(
+  process.env.REACT_APP_CAR_API_URL || 'http://localhost:8087/v1/dealership',
+  false // No authentication required
 );
 
 export const salesApiClient = createApiClient(
-  process.env.REACT_APP_SALES_API_URL || 'http://localhost:8086/v1/dealership'
+  process.env.REACT_APP_SALES_API_URL || 'http://localhost:8086/v1/dealership',
+  true
 );
 
 export const clientApiClient = createApiClient(
-  process.env.REACT_APP_CLIENT_API_URL || 'http://localhost:8085/v1/dealership'
+  process.env.REACT_APP_CLIENT_API_URL || 'http://localhost:8085/v1/dealership',
+  true
 );
 
 // Export factory function for custom API clients
