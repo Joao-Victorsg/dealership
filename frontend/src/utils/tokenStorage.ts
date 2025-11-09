@@ -1,31 +1,26 @@
 import { jwtDecode } from 'jwt-decode';
-import { STORAGE_KEYS, TOKEN_REFRESH_THRESHOLD } from '../config/keycloak';
-import { DecodedToken, UserInfo } from '../types/auth';
+import { TOKEN_STORAGE_KEYS } from '../config/keycloak';
+import { DecodedToken } from '../types/auth';
 
 /**
  * Token Storage Utility
  * 
- * Strategy:
- * - Access Token: Stored in memory (secure, not persisted)
- * - Refresh Token: Stored in localStorage (allows session persistence)
- * - User Info: Stored in localStorage (for quick access)
+ * Security strategy:
+ * - Access Token: Stored in memory (React state) for security against XSS
+ * - Refresh Token: Stored in localStorage for session persistence
+ * 
+ * This allows users to remain logged in across page refreshes while
+ * minimizing the exposure of the short-lived access token.
  */
 
 class TokenStorage {
   private accessToken: string | null = null;
 
   /**
-   * Store tokens and user info
+   * Set access token in memory
    */
-  setTokens(accessToken: string, refreshToken: string): void {
-    this.accessToken = accessToken;
-    localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken);
-    
-    // Extract and store user info
-    const userInfo = this.extractUserInfo(accessToken);
-    if (userInfo) {
-      localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(userInfo));
-    }
+  setAccessToken(token: string): void {
+    this.accessToken = token;
   }
 
   /**
@@ -36,64 +31,73 @@ class TokenStorage {
   }
 
   /**
-   * Get refresh token from localStorage
+   * Clear access token from memory
    */
-  getRefreshToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+  clearAccessToken(): void {
+    this.accessToken = null;
   }
 
   /**
-   * Get stored user info
+   * Set refresh token in localStorage
    */
-  getUserInfo(): UserInfo | null {
-    const userInfoStr = localStorage.getItem(STORAGE_KEYS.USER_INFO);
-    if (!userInfoStr) return null;
-    
+  setRefreshToken(token: string): void {
     try {
-      return JSON.parse(userInfoStr);
-    } catch {
+      localStorage.setItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN, token);
+    } catch (error) {
+      console.error('Failed to store refresh token:', error);
+    }
+  }
+
+  /**
+   * Get refresh token from localStorage
+   */
+  getRefreshToken(): string | null {
+    try {
+      return localStorage.getItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN);
+    } catch (error) {
+      console.error('Failed to retrieve refresh token:', error);
       return null;
     }
   }
 
   /**
-   * Update access token in memory
+   * Clear refresh token from localStorage
    */
-  setAccessToken(token: string): void {
-    this.accessToken = token;
-    
-    // Update user info
-    const userInfo = this.extractUserInfo(token);
-    if (userInfo) {
-      localStorage.setItem(STORAGE_KEYS.USER_INFO, JSON.stringify(userInfo));
+  clearRefreshToken(): void {
+    try {
+      localStorage.removeItem(TOKEN_STORAGE_KEYS.REFRESH_TOKEN);
+    } catch (error) {
+      console.error('Failed to clear refresh token:', error);
     }
   }
 
   /**
-   * Clear all tokens and user info
+   * Clear all tokens (both memory and localStorage)
    */
-  clearTokens(): void {
-    this.accessToken = null;
-    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER_INFO);
+  clearAllTokens(): void {
+    this.clearAccessToken();
+    this.clearRefreshToken();
   }
 
   /**
-   * Check if access token exists
+   * Check if a token is expired
    */
-  hasAccessToken(): boolean {
-    return this.accessToken !== null;
+  isTokenExpired(token: string | null): boolean {
+    if (!token) return true;
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      const currentTime = Date.now() / 1000;
+      // Add 30 second buffer to refresh before actual expiration
+      return decoded.exp < currentTime + 30;
+    } catch (error) {
+      console.error('Failed to decode token:', error);
+      return true;
+    }
   }
 
   /**
-   * Check if refresh token exists
-   */
-  hasRefreshToken(): boolean {
-    return this.getRefreshToken() !== null;
-  }
-
-  /**
-   * Decode JWT token
+   * Decode a JWT token
    */
   decodeToken(token: string): DecodedToken | null {
     try {
@@ -105,45 +109,23 @@ class TokenStorage {
   }
 
   /**
-   * Check if token is expired
+   * Check if user is authenticated (has valid tokens)
    */
-  isTokenExpired(token: string): boolean {
-    const decoded = this.decodeToken(token);
-    if (!decoded || !decoded.exp) return true;
-    
-    const currentTime = Math.floor(Date.now() / 1000);
-    return decoded.exp < currentTime;
-  }
+  isAuthenticated(): boolean {
+    const accessToken = this.getAccessToken();
+    const refreshToken = this.getRefreshToken();
 
-  /**
-   * Check if token needs refresh (expires soon)
-   */
-  shouldRefreshToken(token: string): boolean {
-    const decoded = this.decodeToken(token);
-    if (!decoded || !decoded.exp) return true;
-    
-    const currentTime = Math.floor(Date.now() / 1000);
-    const timeUntilExpiry = decoded.exp - currentTime;
-    
-    return timeUntilExpiry < TOKEN_REFRESH_THRESHOLD;
-  }
+    // If we have a valid access token, user is authenticated
+    if (accessToken && !this.isTokenExpired(accessToken)) {
+      return true;
+    }
 
-  /**
-   * Extract user info from JWT token
-   */
-  private extractUserInfo(token: string): UserInfo | null {
-    const decoded = this.decodeToken(token);
-    if (!decoded) return null;
+    // If access token is expired/missing but we have a refresh token, we can refresh
+    if (refreshToken && !this.isTokenExpired(refreshToken)) {
+      return true;
+    }
 
-    return {
-      id: decoded.sub,
-      email: decoded.email || '',
-      username: decoded.preferred_username || decoded.email || '',
-      firstName: decoded.given_name,
-      lastName: decoded.family_name,
-      name: decoded.name,
-      roles: decoded.realm_access?.roles || [],
-    };
+    return false;
   }
 }
 

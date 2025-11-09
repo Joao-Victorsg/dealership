@@ -1,3 +1,4 @@
+// Keycloak token response from the OpenID Connect token endpoint
 export interface KeycloakTokenResponse {
   access_token: string;
   expires_in: number;
@@ -9,6 +10,7 @@ export interface KeycloakTokenResponse {
   scope: string;
 }
 
+// Decoded JWT token structure
 export interface DecodedToken {
   exp: number;
   iat: number;
@@ -17,22 +19,24 @@ export interface DecodedToken {
   preferred_username?: string;
   given_name?: string;
   family_name?: string;
-  name?: string;
   realm_access?: {
     roles: string[];
   };
+  email_verified?: boolean;
 }
 
+// User information extracted from token
 export interface UserInfo {
   id: string;
   email: string;
   username: string;
   firstName?: string;
   lastName?: string;
-  name?: string;
   roles: string[];
+  emailVerified?: boolean;
 }
 
+// Registration data
 export interface RegisterUserData {
   username: string;
   email: string;
@@ -41,11 +45,15 @@ export interface RegisterUserData {
   password: string;
 }
 
+// Login credentials
 export interface LoginCredentials {
   username: string;
   password: string;
 }
 
-export interface PasswordResetRequest {
-  email: string;
+// Auth error response
+export interface AuthError {
+  error: string;
+  error_description?: string;
+  message?: string;
 }
