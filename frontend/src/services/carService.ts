@@ -1,15 +1,5 @@
-import axios from 'axios';
 import { ApiResponse, Car, CarSearchFilters, CarSearchResponse, CreateCarRequest, UpdateCarRequest } from '../types/car';
-
-// Car API runs on port 8087 with context path /v1/dealership
-const CAR_API_BASE_URL = process.env.REACT_APP_CAR_API_URL || 'http://localhost:8087/v1/dealership';
-
-const carApi = axios.create({
-  baseURL: CAR_API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { carApiClient } from './apiClient';
 
 export const carService = {
   // Get all cars with pagination and filters
@@ -43,49 +33,49 @@ export const carService = {
       params.append('color', filters.color);
     }
 
-    const response = await carApi.get(`/cars?${params}`);
+    const response = await carApiClient.get(`/cars?${params}`);
     return response.data;
   },
 
   // Get car by VIN
   async getCarByVin(vin: string): Promise<ApiResponse<Car>> {
-    const response = await carApi.get(`/cars/${vin}`);
+    const response = await carApiClient.get(`/cars/${vin}`);
     return response.data;
   },
 
   // Create a new car
   async createCar(car: CreateCarRequest): Promise<ApiResponse<Car>> {
-    const response = await carApi.post('/cars', car);
+    const response = await carApiClient.post('/cars', car);
     return response.data;
   },
 
   // Update a car
   async updateCar(vin: string, car: UpdateCarRequest): Promise<ApiResponse<Car>> {
-    const response = await carApi.put(`/cars/${vin}`, car);
+    const response = await carApiClient.put(`/cars/${vin}`, car);
     return response.data;
   },
 
   // Delete a car
   async deleteCar(vin: string): Promise<ApiResponse<string>> {
-    const response = await carApi.delete(`/cars/${vin}`);
+    const response = await carApiClient.delete(`/cars/${vin}`);
     return response.data;
   },
 
   // Get all distinct manufacturers
   async getManufacturers(): Promise<ApiResponse<string[]>> {
-    const response = await carApi.get('/cars/manufacturers');
+    const response = await carApiClient.get('/cars/manufacturers');
     return response.data;
   },
 
   // Get all distinct models
   async getModels(): Promise<ApiResponse<string[]>> {
-    const response = await carApi.get('/cars/models');
+    const response = await carApiClient.get('/cars/models');
     return response.data;
   },
 
   // Get models by manufacturer
   async getModelsByManufacturer(manufacturer: string): Promise<ApiResponse<string[]>> {
-    const response = await carApi.get(`/cars/models/${encodeURIComponent(manufacturer)}`);
+    const response = await carApiClient.get(`/cars/models/${encodeURIComponent(manufacturer)}`);
     return response.data;
   },
 };
