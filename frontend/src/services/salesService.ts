@@ -1,21 +1,11 @@
-import axios from 'axios';
 import { ApiResponse } from '../types/car';
 import { Sales, SalesRequest, SalesSearchFilters, SalesSearchResponse } from '../types/sales';
-
-// Sales API runs on port 8086 with context path /v1/dealership
-const SALES_API_BASE_URL = process.env.REACT_APP_SALES_API_URL || 'http://localhost:8086/v1/dealership';
-
-const salesApi = axios.create({
-  baseURL: SALES_API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { salesApiClient } from './apiClient';
 
 export const salesService = {
   // Create a new sale
   async createSale(sale: SalesRequest): Promise<ApiResponse<Sales>> {
-    const response = await salesApi.post('/sales', sale);
+    const response = await salesApiClient.post('/sales', sale);
     return response.data;
   },
 
@@ -33,19 +23,19 @@ export const salesService = {
       ...(filters?.cpf && { cpf: filters.cpf }),
     });
 
-    const response = await salesApi.get(`/sales?${params}`);
+    const response = await salesApiClient.get(`/sales?${params}`);
     return response.data;
   },
 
   // Get sale by ID
   async getSaleById(id: string): Promise<ApiResponse<Sales>> {
-    const response = await salesApi.get(`/sales/${id}`);
+    const response = await salesApiClient.get(`/sales/${id}`);
     return response.data;
   },
 
   // Cancel sale
   async cancelSale(id: string): Promise<ApiResponse<string>> {
-    const response = await salesApi.delete(`/sales/${id}`);
+    const response = await salesApiClient.delete(`/sales/${id}`);
     return response.data;
   },
 }; 

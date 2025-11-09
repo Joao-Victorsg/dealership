@@ -4,6 +4,15 @@ A modern React TypeScript frontend for the Dealership Management System. This ap
 
 ## Features
 
+### 🔐 Authentication & Security
+- **Keycloak Integration**: Enterprise-grade authentication and authorization
+- **JWT Token Management**: Secure token storage and automatic refresh
+- **Role-Based Access Control**: Admin, staff, and client roles
+- **Session Persistence**: Stay logged in across browser refreshes
+- **Protected Routes**: Secure access to sensitive features
+- **User Registration**: Self-service account creation
+- **Password Reset**: Email-based password recovery (coming soon)
+
 ### 🚗 Car Management
 - **Browse Cars**: View all vehicles in the inventory with search and filter capabilities
 - **Add Cars**: Create new car entries with detailed information
@@ -21,7 +30,7 @@ A modern React TypeScript frontend for the Dealership Management System. This ap
 - **TypeScript**: Full type safety for better development experience
 - **React Query**: Efficient data fetching and caching
 - **React Router**: Client-side routing for smooth navigation
-- **Axios**: HTTP client for API communication
+- **Axios**: HTTP client with authentication interceptors
 - **Form Validation**: Comprehensive form validation with error handling
 
 ## Getting Started
@@ -30,24 +39,41 @@ A modern React TypeScript frontend for the Dealership Management System. This ap
 - Node.js (v18 or higher)
 - npm or yarn
 - Backend APIs running (car-api, client-api, sales-api)
+- Keycloak running on LocalStack (see main project README)
 
 ### Installation
 
 1. **Install dependencies**:
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
-2. **Configure API endpoints**:
+2. **Configure environment variables**:
    Create a `.env` file in the frontend directory:
    ```env
-   REACT_APP_API_URL=http://localhost:8080/v1/dealership
+   # API Endpoints
+   REACT_APP_CAR_API_URL=http://localhost:8087/v1/dealership
+   REACT_APP_SALES_API_URL=http://localhost:8086/v1/dealership
+   REACT_APP_CLIENT_API_URL=http://localhost:8085/v1/dealership
+
+   # Keycloak Configuration
+   REACT_APP_KEYCLOAK_URL=http://localhost:8084
+   REACT_APP_KEYCLOAK_REALM=dealership-realm
+   REACT_APP_KEYCLOAK_CLIENT_ID=dealership-frontend
    ```
 
 3. **Start the development server**:
    ```bash
    npm start
    ```
+
+4. **Test the authentication**:
+   - Navigate to `http://localhost:3000`
+   - You'll be redirected to the login page
+   - Use test credentials (see [AUTHENTICATION.md](./AUTHENTICATION.md) for details):
+     - Admin: `admin@dealership.com` / `admin123`
+     - Staff: `jane.smith@dealership.com` / `staff123`
+     - Client: `john.doe@example.com` / `password123`
 
 4. **Open your browser**:
    Navigate to `http://localhost:3000`
@@ -58,19 +84,40 @@ A modern React TypeScript frontend for the Dealership Management System. This ap
 frontend/
 ├── src/
 │   ├── components/          # Reusable UI components
-│   │   └── Layout.tsx       # Main layout with navigation
-│   │   └── CarList.tsx     # Car inventory list
-│   │   └── CarForm.tsx     # Add/Edit car form
-│   │   └── CarDetail.tsx   # Car details view
-│   ├── services/           # API services
-│   │   └── carService.ts   # Car API integration
-│   ├── types/              # TypeScript type definitions
-│   │   └── car.ts          # Car-related types
-│   ├── utils/              # Utility functions
-│   ├── App.tsx             # Main application component
-│   └── index.tsx           # Application entry point
-├── public/                 # Static assets
-└── package.json            # Dependencies and scripts
+│   │   ├── Layout.tsx       # Admin layout with navigation
+│   │   ├── ClientLayout.tsx # Client layout with navigation
+│   │   └── ProtectedRoute.tsx # Route protection component
+│   ├── pages/               # Page components
+│   │   ├── auth/            # Authentication pages
+│   │   │   ├── Login.tsx    # Login page
+│   │   │   ├── Register.tsx # Registration page
+│   │   │   └── PasswordReset.tsx # Password reset page
+│   │   ├── Home.tsx         # Admin dashboard
+│   │   ├── CarList.tsx      # Car inventory list
+│   │   ├── CarForm.tsx      # Add/Edit car form
+│   │   ├── CarDetail.tsx    # Car details view
+│   │   └── client/          # Client-facing pages
+│   ├── services/            # API services
+│   │   ├── apiClient.ts     # Centralized API client with interceptors
+│   │   ├── authService.ts   # Authentication service
+│   │   ├── carService.ts    # Car API integration
+│   │   └── salesService.ts  # Sales API integration
+│   ├── contexts/            # React contexts
+│   │   └── AuthContext.tsx  # Authentication context
+│   ├── types/               # TypeScript type definitions
+│   │   ├── auth.ts          # Authentication types
+│   │   ├── car.ts           # Car-related types
+│   │   └── sales.ts         # Sales-related types
+│   ├── utils/               # Utility functions
+│   │   └── tokenStorage.ts  # Token storage utility
+│   ├── config/              # Configuration files
+│   │   └── keycloak.ts      # Keycloak configuration
+│   ├── App.tsx              # Main application component
+│   └── index.tsx            # Application entry point
+├── public/                  # Static assets
+├── .env                     # Environment variables
+├── AUTHENTICATION.md        # Authentication documentation
+└── package.json             # Dependencies and scripts
 ```
 
 ## Available Scripts
@@ -84,16 +131,29 @@ frontend/
 
 The frontend integrates with the following backend APIs:
 
-### Car API (`/cars`)
+### Authentication (Keycloak)
+- `POST /realms/{realm}/protocol/openid-connect/token` - Login and token refresh
+- `POST /realms/{realm}/protocol/openid-connect/logout` - Logout
+- All API requests include JWT token in Authorization header
+- Automatic token refresh on expiration
+
+### Car API
 - `GET /cars` - Get all cars with pagination and filters
 - `GET /cars/{vin}` - Get car by VIN
-- `POST /cars` - Create new car
-- `PUT /cars/{vin}` - Update car
-- `DELETE /cars/{vin}` - Delete car
+- `POST /cars` - Create new car (requires authentication)
+- `PUT /cars/{vin}` - Update car (requires authentication)
+- `DELETE /cars/{vin}` - Delete car (requires authentication)
 
-### Future Integrations
-- **Client API**: Customer management functionality
-- **Sales API**: Sales transaction management
+### Sales API
+- `POST /sales` - Create new sale (requires authentication)
+- `GET /sales` - Get all sales with pagination and filters (requires authentication)
+- `GET /sales/{id}` - Get sale by ID (requires authentication)
+- `DELETE /sales/{id}` - Cancel sale (requires authentication)
+
+### Client API
+- Coming soon
+
+For detailed authentication information, see [AUTHENTICATION.md](./AUTHENTICATION.md)
 
 ## Usage
 

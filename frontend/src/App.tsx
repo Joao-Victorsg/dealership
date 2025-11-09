@@ -4,6 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
+// Auth Components
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import PasswordReset from './pages/auth/PasswordReset';
+
 // Admin Components
 import Layout from './components/Layout';
 import CarDetail from './pages/CarDetail';
@@ -105,25 +112,109 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Router>
-          <Routes>
-            {/* Client Routes (Default) */}
-            <Route path="/" element={<ClientLayout><ClientHome /></ClientLayout>} />
-            <Route path="/cars" element={<ClientLayout><ClientCarList /></ClientLayout>} />
-            <Route path="/cars/new" element={<Navigate to="/admin/cars/new" replace />} />
-            <Route path="/cars/:vin" element={<ClientLayout><ClientCarDetail /></ClientLayout>} />
-            <Route path="/purchase/:vin" element={<ClientLayout><PurchaseFlow /></ClientLayout>} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={<Layout><Home /></Layout>} />
-            <Route path="/admin/cars" element={<Layout><CarList /></Layout>} />
-            <Route path="/admin/cars/new" element={<Layout><CarForm /></Layout>} />
-            <Route path="/admin/cars/:vin" element={<Layout><CarDetail /></Layout>} />
-            <Route path="/admin/cars/:vin/edit" element={<Layout><CarForm /></Layout>} />
-            <Route path="/admin/clients" element={<Layout><div>Clients Page (Coming Soon)</div></Layout>} />
-            <Route path="/admin/sales" element={<Layout><div>Sales Page (Coming Soon)</div></Layout>} />
-          </Routes>
-        </Router>
+        <AuthProvider>
+          <Router>
+            <Routes>
+              {/* Public Auth Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/password-reset" element={<PasswordReset />} />
+
+              {/* Protected Client Routes */}
+              <Route 
+                path="/" 
+                element={
+                  <ProtectedRoute>
+                    <ClientLayout><ClientHome /></ClientLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/cars" 
+                element={
+                  <ProtectedRoute>
+                    <ClientLayout><ClientCarList /></ClientLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/cars/new" element={<Navigate to="/admin/cars/new" replace />} />
+              <Route 
+                path="/cars/:vin" 
+                element={
+                  <ProtectedRoute>
+                    <ClientLayout><ClientCarDetail /></ClientLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/purchase/:vin" 
+                element={
+                  <ProtectedRoute>
+                    <ClientLayout><PurchaseFlow /></ClientLayout>
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* Protected Admin Routes (requires admin or staff role) */}
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><Home /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/cars" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><CarList /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/cars/new" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><CarForm /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/cars/:vin" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><CarDetail /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/cars/:vin/edit" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><CarForm /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/clients" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><div>Clients Page (Coming Soon)</div></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin/sales" 
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <Layout><div>Sales Page (Coming Soon)</div></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+            </Routes>
+          </Router>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

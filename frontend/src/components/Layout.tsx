@@ -3,7 +3,8 @@ import {
     Dashboard as DashboardIcon,
     Menu as MenuIcon,
     Person as PersonIcon,
-    AttachMoney as SalesIcon
+    AttachMoney as SalesIcon,
+    Logout as LogoutIcon,
 } from '@mui/icons-material';
 import {
     AppBar,
@@ -22,9 +23,13 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    Menu,
+    MenuItem,
+    Divider,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,8 +39,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { text: 'Dashboard', path: '/admin', icon: <DashboardIcon />, color: '#6366f1' },
@@ -46,6 +53,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await logout();
+    navigate('/login');
   };
 
   const handleNavigation = (path: string) => {
@@ -225,10 +246,86 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 View Client Site
               </Button>
+
+              <IconButton
+                onClick={handleMenuOpen}
+                sx={{ ml: 2 }}
+                color="primary"
+              >
+                <Avatar
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    bgcolor: 'primary.main',
+                  }}
+                >
+                  {user?.firstName?.[0] || user?.username?.[0] || 'U'}
+                </Avatar>
+              </IconButton>
             </Box>
+          )}
+
+          {isMobile && (
+            <IconButton
+              onClick={handleMenuOpen}
+              sx={{ ml: 2 }}
+              color="primary"
+            >
+              <Avatar
+                sx={{
+                  width: 36,
+                  height: 36,
+                  bgcolor: 'primary.main',
+                }}
+              >
+                {user?.firstName?.[0] || user?.username?.[0] || 'U'}
+              </Avatar>
+            </IconButton>
           )}
         </Toolbar>
       </AppBar>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        onClick={handleMenuClose}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            mt: 1.5,
+            minWidth: 200,
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            {user?.firstName && user?.lastName 
+              ? `${user.firstName} ${user.lastName}`
+              : user?.username || 'User'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.email || ''}
+          </Typography>
+          {user?.roles && user.roles.length > 0 && (
+            <Chip
+              label={user.roles[0]}
+              size="small"
+              sx={{ mt: 0.5 }}
+              color="primary"
+            />
+          )}
+        </Box>
+        <Divider />
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Logout</ListItemText>
+        </MenuItem>
+      </Menu>
 
       {isMobile && (
         <Drawer
