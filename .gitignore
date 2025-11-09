@@ -38,3 +38,6 @@ build/
 
 ### Docker Volume (Local Information)###
 /localstack-dealership/volume
+
+### Python
+*__pycache__/
