@@ -228,7 +228,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               
               <Button
                 variant="outlined"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/client/home')}
                 sx={{
                   borderRadius: 2,
                   px: 3,

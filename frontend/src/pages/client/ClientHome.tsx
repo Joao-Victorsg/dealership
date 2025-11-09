@@ -104,7 +104,7 @@ const ClientHome: React.FC = () => {
           <Button
             variant="contained"
             size="large"
-            onClick={() => navigate('/cars')}
+            onClick={() => navigate('/client/cars')}
             startIcon={<SearchIcon />}
             sx={{
               background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
@@ -270,7 +270,7 @@ const ClientHome: React.FC = () => {
         <Button
           variant="contained"
           size="large"
-          onClick={() => navigate('/cars')}
+          onClick={() => navigate('/client/cars')}
           startIcon={<CarIcon />}
           sx={{
             background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',

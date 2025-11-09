@@ -1,60 +1,44 @@
 import {
     DirectionsCar as CarIcon,
-    ShoppingCart as CartIcon,
     Home as HomeIcon,
     Menu as MenuIcon,
-    Person as PersonIcon,
-    Search as SearchIcon,
-    Favorite as WishlistIcon,
-    Logout as LogoutIcon,
+    Login as LoginIcon,
+    PersonAdd as SignUpIcon,
 } from '@mui/icons-material';
 import {
     AppBar,
     Avatar,
-    Badge,
     Box,
     Button,
     Container,
     Drawer,
     IconButton,
-    InputBase,
     List,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     Toolbar,
     Typography,
-    alpha,
     useMediaQuery,
     useTheme,
-    Menu,
-    MenuItem,
-    Divider,
-    Chip,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 
-interface ClientLayoutProps {
+interface PublicLayoutProps {
   children: React.ReactNode;
 }
 
-const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
+const PublicLayout: React.FC<PublicLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
 
   const menuItems = [
-    { text: 'Home', path: '/client/home', icon: <HomeIcon /> },
-    { text: 'Browse Cars', path: '/client/cars', icon: <CarIcon /> },
-    { text: 'My Account', path: '/account', icon: <PersonIcon /> },
-    { text: 'Wishlist', path: '/wishlist', icon: <WishlistIcon /> },
+    { text: 'Home', path: '/', icon: <HomeIcon /> },
+    { text: 'Browse Cars', path: '/', icon: <CarIcon /> },
   ];
 
   const handleDrawerToggle = () => {
@@ -66,27 +50,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
     if (isMobile) {
       setMobileOpen(false);
     }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/client/cars?search=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = async () => {
-    handleMenuClose();
-    await logout();
-    navigate('/login');
   };
 
   const drawer = (
@@ -207,40 +170,9 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
             </Typography>
           </Box>
 
-          {/* Search Bar */}
+          {/* Navigation Buttons - Desktop */}
           {!isMobile && (
-            <Box
-              component="form"
-              onSubmit={handleSearch}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                background: alpha(theme.palette.grey[100], 0.8),
-                borderRadius: 3,
-                px: 2,
-                py: 0.5,
-                mr: 3,
-                minWidth: 300,
-                '&:hover': {
-                  background: alpha(theme.palette.grey[100], 1),
-                },
-              }}
-            >
-              <InputBase
-                placeholder="Search cars..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{ flex: 1, ml: 1 }}
-              />
-              <IconButton type="submit" size="small">
-                <SearchIcon />
-              </IconButton>
-            </Box>
-          )}
-
-          {/* Navigation Buttons */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1, mr: 2 }}>
               {menuItems.map((item) => (
                 <Button
                   key={item.text}
@@ -270,83 +202,49 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
             </Box>
           )}
 
-          {/* Cart Icon */}
-          <IconButton
-            color="primary"
-            onClick={() => navigate('/cart')}
-            sx={{ ml: 1 }}
-          >
-            <Badge badgeContent={0} color="error">
-              <CartIcon />
-            </Badge>
-          </IconButton>
-
-          {/* User Menu */}
-          <IconButton
-            onClick={handleMenuOpen}
-            sx={{ ml: 1 }}
-            color="primary"
-          >
-            <Avatar
+          {/* Auth Buttons */}
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/login')}
+              startIcon={!isMobile && <LoginIcon />}
               sx={{
-                width: 36,
-                height: 36,
-                bgcolor: 'primary.main',
+                borderRadius: 2,
+                px: { xs: 1.5, sm: 2.5 },
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 600,
+                borderColor: '#3b82f6',
+                color: '#3b82f6',
+                '&:hover': {
+                  borderColor: '#1d4ed8',
+                  backgroundColor: 'rgba(59, 130, 246, 0.04)',
+                },
               }}
             >
-              {user?.firstName?.[0] || user?.username?.[0] || 'U'}
-            </Avatar>
-          </IconButton>
+              {isMobile ? <LoginIcon /> : 'Sign In'}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/register')}
+              startIcon={!isMobile && <SignUpIcon />}
+              sx={{
+                borderRadius: 2,
+                px: { xs: 1.5, sm: 2.5 },
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 600,
+                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%)',
+                },
+              }}
+            >
+              {isMobile ? <SignUpIcon /> : 'Sign Up'}
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
-
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        onClick={handleMenuClose}
-        PaperProps={{
-          elevation: 3,
-          sx: {
-            mt: 1.5,
-            minWidth: 200,
-          },
-        }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-      >
-        <Box sx={{ px: 2, py: 1.5 }}>
-          <Typography variant="subtitle2" fontWeight={600}>
-            {user?.firstName && user?.lastName 
-              ? `${user.firstName} ${user.lastName}`
-              : user?.username || 'User'}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {user?.email || ''}
-          </Typography>
-          {user?.roles && user.roles.length > 0 && (
-            <Chip
-              label={user.roles[0]}
-              size="small"
-              sx={{ mt: 0.5 }}
-              color="primary"
-            />
-          )}
-        </Box>
-        <Divider />
-        <MenuItem onClick={() => { handleMenuClose(); navigate('/account'); }}>
-          <ListItemIcon>
-            <PersonIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleLogout}>
-          <ListItemIcon>
-            <LogoutIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText>Logout</ListItemText>
-        </MenuItem>
-      </Menu>
 
       {isMobile && (
         <Drawer
@@ -409,4 +307,4 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
   );
 };
 
-export default ClientLayout; 
+export default PublicLayout;
