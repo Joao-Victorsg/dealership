@@ -6,6 +6,7 @@ import {
     Person as PersonIcon,
     Search as SearchIcon,
     Favorite as WishlistIcon,
+    Logout as LogoutIcon,
 } from '@mui/icons-material';
 import {
     AppBar,
@@ -26,9 +27,14 @@ import {
     alpha,
     useMediaQuery,
     useTheme,
+    Menu,
+    MenuItem,
+    Divider,
+    Chip,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -39,8 +45,10 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const menuItems = [
     { text: 'Home', path: '/', icon: <HomeIcon /> },
@@ -65,6 +73,20 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
     if (searchTerm.trim()) {
       navigate(`/cars?search=${encodeURIComponent(searchTerm.trim())}`);
     }
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleMenuClose();
+    await logout();
+    navigate('/login');
   };
 
   const drawer = (
@@ -258,8 +280,73 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ children }) => {
               <CartIcon />
             </Badge>
           </IconButton>
+
+          {/* User Menu */}
+          <IconButton
+            onClick={handleMenuOpen}
+            sx={{ ml: 1 }}
+            color="primary"
+          >
+            <Avatar
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: 'primary.main',
+              }}
+            >
+              {user?.firstName?.[0] || user?.username?.[0] || 'U'}
+            </Avatar>
+          </IconButton>
         </Toolbar>
       </AppBar>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        onClick={handleMenuClose}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            mt: 1.5,
+            minWidth: 200,
+          },
+        }}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <Box sx={{ px: 2, py: 1.5 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            {user?.firstName && user?.lastName 
+              ? `${user.firstName} ${user.lastName}`
+              : user?.username || 'User'}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {user?.email || ''}
+          </Typography>
+          {user?.roles && user.roles.length > 0 && (
+            <Chip
+              label={user.roles[0]}
+              size="small"
+              sx={{ mt: 0.5 }}
+              color="primary"
+            />
+          )}
+        </Box>
+        <Divider />
+        <MenuItem onClick={() => { handleMenuClose(); navigate('/account'); }}>
+          <ListItemIcon>
+            <PersonIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>My Account</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleLogout}>
+          <ListItemIcon>
+            <LogoutIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Logout</ListItemText>
+        </MenuItem>
+      </Menu>
 
       {isMobile && (
         <Drawer
